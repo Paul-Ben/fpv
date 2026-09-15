@@ -2,62 +2,37 @@
 # Dependencies
 node_modules/
 
-# Environment
+# Environment variables
 .env
 .env.local
 .env.*
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.venv.bak/
-pip-log.txt
-pip-selfcheck.json
-.python-version
-.pytest_cache/
-.mypy_cache/
-.coverage
-coverage/
-htmlcov/
-
-# Logs
-*.log
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
 
 # Build outputs
 dist/
 build/
 target/
-.nyc_output/
-coverage/
-lib-cov/
+
+# Logs
+*.log
 
 # Temporary files
 *.tmp
-*.temp
-*.bak
-*.backup
+*.swp
+*.swo
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Compressed files
 *.zip
@@ -82,4 +57,1700 @@ lib-cov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# TypeScript
+*.tsbuildinfo
+*.tsx
+
+# Vite
+.vite/
+
+# Tailwind CSS
+.tailwind/
+
+# Supabase
+.supabase/
+
+# Google GenAI
+.google/
+
+# Browserslist
+.browserslist*
+
+# PostCSS
+.postcss*
+
+# Nanoid
+.nanoid*
+
+# Protobuf
+.protobuf*
+
+# Yallist
+.yallist*
+
+# Undici types
+.undici-types*
+
+# Web streams polyfill
+.web-streams-polyfill*
+
+# WS (WebSocket)
+.ws*
+
+# Tinyglobby
+.tinyglobby*
+
+# Tapable
+.tapable*
+
+# Source map JS
+.source-map-js*
+
+# Side channel
+.side-channel*
+
+# Set prototype of
+.setprototypeof*
+
+# Serve static
+.serve-static*
+
+# Send
+.send*
+
+# Safe buffer
+.safe-buffer*
+
+# Rollup
+.rollup*
+
+# Retry
+.retry*
+
+# React
+.react*
+
+# Raw body
+.raw-body*
+
+# Range parser
+.range-parser*
+
+# QS
+.qs*
+
+# Proxy addr
+.proxy-addr*
+
+# ProtobufJS
+.protobufjs*
+
+# PostCSS value parser
+.postcss-value-parser*
+
+# Picomatch
+.picomatch*
+
+# Picocolors
+.picocolors*
+
+# Path to regexp
+.path-to-regexp*
+
+# Parse URL
+.parseurl*
+
+# P retry
+.p-retry*
+
+# Object inspect
+.object-inspect*
+
+# On finished
+.on-finished*
+
+# Node releases
+.node-releases*
+
+# Node fetch
+.node-fetch*
+
+# Node DOMException
+.node-domexception*
+
+# Negotiator
+.negotiator*
+
+# MS
+.ms*
+
+# Motion utils
+.motion-utils*
+
+# Motion DOM
+.motion-dom*
+
+# Motion
+.motion*
+
+# Mime types
+.mime-types*
+
+# Mime DB
+.mime-db*
+
+# Mime
+.mime*
+
+# Merge descriptors
+.merge-descriptors*
+
+# Media typer
+.media-typer*
+
+# Math intrinsics
+.math-intrinsics*
+
+# Magic string
+.magic-string*
+
+# Lucide react
+.lucide-react*
+
+# Jiti
+.jiti*
+
+# JSON5
+.json5*
+
+# JS esc
+.jsesc*
+
+# JSDOM
+.jsdom*
+
+# JSDOM utils
+.jsdom-utils*
+
+# JSDOM whatwg encoding
+.jsdom-whatwg-encoding*
+
+# JSDOM whatwg MIME type
+.jsdom-whatwg-mime-type*
+
+# JSDOM whatwg URL
+.jsdom-whatwg-url*
+
+# JSDOM XML name validator
+.jsdom-xml-name-validator*
+
+# JSDOM ws
+.jsdom-ws*
+
+# JSDOM xmlchars
+.jsdom-xmlchars*
+
+# JSDOM parse5
+.jsdom-parse5*
+
+# JSDOM tough-cookie
+.jsdom-tough-cookie*
+
+# JSDOM nwsapi
+.jsdom-nwsapi*
+
+# JSDOM cssstyle
+.jsdom-cssstyle*
+
+# JSDOM cssom
+.jsdom-cssom*
+
+# JSDOM data-urls
+.jsdom-data-urls*
+
+# JSDOM domexception
+.jsdom-domexception*
+
+# JSDOM form-data
+.jsdom-form-data*
+
+# JSDOM html-encoding-sniffer
+.jsdom-html-encoding-sniffer*
+
+# JSDOM http-proxy-agent
+.jsdom-http-proxy-agent*
+
+# JSDOM https-proxy-agent
+.jsdom-https-proxy-agent*
+
+# JSDOM iconv-lite
+.jsdom-iconv-lite*
+
+# JSDOM ieee754
+.jsdom-ieee754*
+
+# JSDOM inherits
+.jsdom-inherits*
+
+# JSDOM is-potential-custom-element-name
+.jsdom-is-potential-custom-element-name*
+
+# JSDOM nwsapi
+.jsdom-nwsapi*
+
+# JSDOM parse5
+.jsdom-parse5*
+
+# JSDOM saxes
+.jsdom-saxes*
+
+# JSDOM symbol-tree
+.jsdom-symbol-tree*
+
+# JSDOM tough-cookie
+.jsdom-tough-cookie*
+
+# JSDOM w3c-hr-time
+.jsdom-w3c-hr-time*
+
+# JSDOM w3c-xmlserializer
+.jsdom-w3c-xmlserializer*
+
+# JSDOM webidl-conversions
+.jsdom-webidl-conversions*
+
+# JSDOM whatwg-encoding
+.jsdom-whatwg-encoding*
+
+# JSDOM whatwg-mimetype
+.jsdom-whatwg-mimetype*
+
+# JSDOM whatwg-url
+.jsdom-whatwg-url*
+
+# JSDOM ws
+.jsdom-ws*
+
+# JSDOM xml-name-validator
+.jsdom-xml-name-validator*
+
+# JSDOM xmlchars
+.jsdom-xmlchars*
+
+# JSDOM abab
+.jsdom-abab*
+
+# JSDOM acorn
+.jsdom-acorn*
+
+# JSDOM acorn-globals
+.jsdom-acorn-globals*
+
+# JSDOM cssom
+.jsdom-cssom*
+
+# JSDOM cssstyle
+.jsdom-cssstyle*
+
+# JSDOM data-urls
+.jsdom-data-urls*
+
+# JSDOM decimal.js
+.jsdom-decimal.js*
+
+# JSDOM domexception
+.jsdom-domexception*
+
+# JSDOM escodegen
+.jsdom-escodegen*
+
+# JSDOM form-data
+.jsdom-form-data*
+
+# JSDOM html-encoding-sniffer
+.jsdom-html-encoding-sniffer*
+
+# JSDOM http-proxy-agent
+.jsdom-http-proxy-agent*
+
+# JSDOM https-proxy-agent
+.jsdom-https-proxy-agent*
+
+# JSDOM iconv-lite
+.jsdom-iconv-lite*
+
+# JSDOM is-potential-custom-element-name
+.jsdom-is-potential-custom-element-name*
+
+# JSDOM nwsapi
+.jsdom-nwsapi*
+
+# JSDOM parse5
+.jsdom-parse5*
+
+# JSDOM saxes
+.jsdom-saxes*
+
+# JSDOM symbol-tree
+.jsdom-symbol-tree*
+
+# JSDOM tough-cookie
+.jsdom-tough-cookie*
+
+# JSDOM w3c-hr-time
+.jsdom-w3c-hr-time*
+
+# JSDOM w3c-xmlserializer
+.jsdom-w3c-xmlserializer*
+
+# JSDOM webidl-conversions
+.jsdom-webidl-conversions*
+
+# JSDOM whatwg-encoding
+.jsdom-whatwg-encoding*
+
+# JSDOM whatwg-mimetype
+.jsdom-whatwg-mimetype*
+
+# JSDOM whatwg-url
+.jsdom-whatwg-url*
+
+# JSDOM ws
+.jsdom-ws*
+
+# JSDOM xml-name-validator
+.jsdom-xml-name-validator*
+
+# JSDOM xmlchars
+.jsdom-xmlchars*
+
+# JSDOM abab
+.jsdom-abab*
+
+# JSDOM acorn
+.jsdom-acorn*
+
+# JSDOM acorn-globals
+.jsdom-acorn-globals*
+
+# JSDOM array-buffer-byte-length
+.array-buffer-byte-length*
+
+# JSDOM available-typed-arrays
+.available-typed-arrays*
+
+# JSDOM call-bind
+.call-bind*
+
+# JSDOM call-bind-apply-helpers
+.call-bind-apply-helpers*
+
+# JSDOM call-bound
+.call-bound*
+
+# JSDOM define-data-property
+.define-data-property*
+
+# JSDOM dunder-proto
+.dunder-proto*
+
+# JSDOM es-define-property
+.es-define-property*
+
+# JSDOM es-errors
+.es-errors*
+
+# JSDOM function-bind
+.function-bind*
+
+# JSDOM functions-have-names
+.functions-have-names*
+
+# JSDOM get-intrinsic
+.get-intrinsic*
+
+# JSDOM get-symbol-description
+.get-symbol-description*
+
+# JSDOM globalthis
+.globalthis*
+
+# JSDOM gopd
+.gopd*
+
+# JSDOM has-property-descriptors
+.has-property-descriptors*
+
+# JSDOM has-proto
+.has-proto*
+
+# JSDOM has-symbols
+.has-symbols*
+
+# JSDOM has-tostringtag
+.has-tostringtag*
+
+# JSDOM internal-slot
+.internal-slot*
+
+# JSDOM is-array-buffer
+.is-array-buffer*
+
+# JSDOM is-callable
+.is-callable*
+
+# JSDOM is-data-view
+.is-data-view*
+
+# JSDOM is-date-object
+.is-date-object*
+
+# JSDOM is-negative-zero
+.is-negative-zero*
+
+# JSDOM is-number-object
+.is-number-object*
+
+# JSDOM is-regex
+.is-regex*
+
+# JSDOM is-shared-array-buffer
+.is-shared-array-buffer*
+
+# JSDOM is-string
+.is-string*
+
+# JSDOM is-symbol
+.is-symbol*
+
+# JSDOM is-typed-array
+.is-typed-array*
+
+# JSDOM is-weakref
+.is-weakref*
+
+# JSDOM math-intrinsics
+.math-intrinsics*
+
+# JSDOM object-inspect
+.object-inspect*
+
+# JSDOM object-keys
+.object-keys*
+
+# JSDOM object.assign
+.object.assign*
+
+# JSDOM own-keys
+.own-keys*
+
+# JSDOM regexp.prototype.flags
+.regexp.prototype.flags*
+
+# JSDOM safe-array-concat
+.safe-array-concat*
+
+# JSDOM safe-regex-test
+.safe-regex-test*
+
+# JSDOM side-channel
+.side-channel*
+
+# JSDOM string.prototype.trim
+.string.prototype.trim*
+
+# JSDOM string.prototype.trimend
+.string.prototype.trimend*
+
+# JSDOM string.prototype.trimstart
+.string.prototype.trimstart*
+
+# JSDOM typed-array-buffer
+.typed-array-buffer*
+
+# JSDOM typed-array-byte-length
+.typed-array-byte-length*
+
+# JSDOM typed-array-byte-offset
+.typed-array-byte-offset*
+
+# JSDOM typed-array-length
+.typed-array-length*
+
+# JSDOM unbox-primitive
+.unbox-primitive*
+
+# JSDOM which-boxed-primitive
+.which-boxed-primitive*
+
+# JSDOM which-typed-array
+.which-typed-array*
+
+# JSDOM jsdom
+.jsdom*
+
+# JSDOM agent-base
+.agent-base*
+
+# JSDOM base64-js
+.base64-js*
+
+# JSDOM browserslist
+.browserslist*
+
+# JSDOM buffer
+.buffer*
+
+# JSDOM buffer-equal-constant-time
+.buffer-equal-constant-time*
+
+# JSDOM caniuse-lite
+.caniuse-lite*
+
+# JSDOM data-uri-to-buffer
+.data-uri-to-buffer*
+
+# JSDOM debug
+.debug*
+
+# JSDOM depd
+.depd*
+
+# JSDOM destroy
+.destroy*
+
+# JSDOM detect-libc
+.detect-libc*
+
+# JSDOM dotenv
+.dotenv*
+
+# JSDOM ecdsa-sig-formatter
+.ecdsa-sig-formatter*
+
+# JSDOM ee-first
+.ee-first*
+
+# JSDOM electron-to-chromium
+.electron-to-chromium*
+
+# JSDOM encodeurl
+.encodeurl*
+
+# JSDOM enhanced-resolve
+.enhanced-resolve*
+
+# JSDOM entities
+.entities*
+
+# JSDOM es-define-property
+.es-define-property*
+
+# JSDOM es-errors
+.es-errors*
+
+# JSDOM es-module-lexer
+.es-module-lexer*
+
+# JSDOM escalade
+.escalade*
+
+# JSDOM escape-html
+.escape-html*
+
+# JSDOM escodegen
+.escodegen*
+
+# JSDOM eslint-scope
+.eslint-scope*
+
+# JSDOM espree
+.espree*
+
+# JSDOM esquery
+.esquery*
+
+# JSDOM esrecurse
+.esrecurse*
+
+# JSDOM estraverse
+.estraverse*
+
+# JSDOM esutils
+.esutils*
+
+# JSDOM etag
+.etag*
+
+# JSDOM eventemitter3
+.eventemitter3*
+
+# JSDOM events
+.events*
+
+# JSDOM execa
+.execa*
+
+# JSDOM exit-hook
+.exit-hook*
+
+# JSDOM express
+.express*
+
+# JSDOM fast-deep-equal
+.fast-deep-equal*
+
+# JSDOM fast-glob
+.fast-glob*
+
+# JSDOM fast-json-stable-stringify
+.fast-json-stable-stringify*
+
+# JSDOM fast-levenshtein
+.fast-levenshtein*
+
+# JSDOM fastq
+.fastq*
+
+# JSDOM fdir
+.fdir*
+
+# JSDOM file-uri-to-path
+.file-uri-to-path*
+
+# JSDOM fill-range
+.fill-range*
+
+# JSDOM finalhandler
+.finalhandler*
+
+# JSDOM find-up
+.find-up*
+
+# JSDOM flat
+.flat*
+
+# JSDOM flatted
+.flatted*
+
+# JSDOM follow-redirects
+.follow-redirects*
+
+# JSDOM for-each
+.for-each*
+
+# JSDOM foreground-child
+.foreground-child*
+
+# JSDOM forwarded
+.forwarded*
+
+# JSDOM fresh
+.fresh*
+
+# JSDOM fs-extra
+.fs-extra*
+
+# JSDOM fsevents
+.fsevents*
+
+# JSDOM function-bind
+.function-bind*
+
+# JSDOM function.prototype.name
+.function.prototype.name*
+
+# JSDOM functions-have-names
+.functions-have-names*
+
+# JSDOM generic-names
+.generic-names*
+
+# JSDOM gensync
+.gensync*
+
+# JSDOM get-caller-file
+.get-caller-file*
+
+# JSDOM get-intrinsic
+.get-intrinsic*
+
+# JSDOM get-port
+.get-port*
+
+# JSDOM get-stream
+.get-stream*
+
+# JSDOM get-symbol-description
+.get-symbol-description*
+
+# JSDOM glob
+.glob*
+
+# JSDOM glob-parent
+.glob-parent*
+
+# JSDOM globals
+.globals*
+
+# JSDOM globalthis
+.globalthis*
+
+# JSDOM gopd
+.gopd*
+
+# JSDOM graceful-fs
+.graceful-fs*
+
+# JSDOM graphemer
+.graphemer*
+
+# JSDOM has-flag
+.has-flag*
+
+# JSDOM has-property-descriptors
+.has-property-descriptors*
+
+# JSDOM has-proto
+.has-proto*
+
+# JSDOM has-symbols
+.has-symbols*
+
+# JSDOM has-tostringtag
+.has-tostringtag*
+
+# JSDOM hasown
+.hasown*
+
+# JSDOM hosted-git-info
+.hosted-git-info*
+
+# JSDOM html-escaper
+.html-escaper*
+
+# JSDOM http-errors
+.http-errors*
+
+# JSDOM http-proxy
+.http-proxy*
+
+# JSDOM http-proxy-agent
+.http-proxy-agent*
+
+# JSDOM https-proxy-agent
+.https-proxy-agent*
+
+# JSDOM human-signals
+.human-signals*
+
+# JSDOM iconv-lite
+.iconv-lite*
+
+# JSDOM ieee754
+.ieee754*
+
+# JSDOM ignore
+.ignore*
+
+# JSDOM import-fresh
+.import-fresh*
+
+# JSDOM imurmurhash
+.imurmurhash*
+
+# JSDOM indent-string
+.indent-string*
+
+# JSDOM inflight
+.inflight*
+
+# JSDOM inherits
+.inherits*
+
+# JSDOM internal-slot
+.internal-slot*
+
+# JSDOM ip-address
+.ip-address*
+
+# JSDOM ipaddr.js
+.ipaddr.js*
+
+# JSDOM is-array-buffer
+.is-array-buffer*
+
+# JSDOM is-binary-path
+.is-binary-path*
+
+# JSDOM is-callable
+.is-callable*
+
+# JSDOM is-core-module
+.is-core-module*
+
+# JSDOM is-data-view
+.is-data-view*
+
+# JSDOM is-date-object
+.is-date-object*
+
+# JSDOM is-docker
+.is-docker*
+
+# JSDOM is-extglob
+.is-extglob*
+
+# JSDOM is-fullwidth-code-point
+.is-fullwidth-code-point*
+
+# JSDOM is-glob
+.is-glob*
+
+# JSDOM is-negative-zero
+.is-negative-zero*
+
+# JSDOM is-number
+.is-number*
+
+# JSDOM is-number-object
+.is-number-object*
+
+# JSDOM is-plain-obj
+.is-plain-obj*
+
+# JSDOM is-regex
+.is-regex*
+
+# JSDOM is-shared-array-buffer
+.is-shared-array-buffer*
+
+# JSDOM is-stream
+.is-stream*
+
+# JSDOM is-string
+.is-string*
+
+# JSDOM is-symbol
+.is-symbol*
+
+# JSDOM is-typed-array
+.is-typed-array*
+
+# JSDOM is-weakref
+.is-weakref*
+
+# JSDOM is-wsl
+.is-wsl*
+
+# JSDOM isarray
+.isarray*
+
+# JSDOM isexe
+.isexe*
+
+# JSDOM istanbul-lib-coverage
+.istanbul-lib-coverage*
+
+# JSDOM istanbul-lib-report
+.istanbul-lib-report*
+
+# JSDOM istanbul-lib-source-maps
+.istanbul-lib-source-maps*
+
+# JSDOM istanbul-reports
+.istanbul-reports*
+
+# JSDOM iterator.prototype
+.iterator.prototype*
+
+# JSDOM jackspeak
+.jackspeak*
+
+# JSDOM jiti
+.jiti*
+
+# JSDOM jose
+.jose*
+
+# JSDOM joycon
+.joycon*
+
+# JSDOM js-tokens
+.js-tokens*
+
+# JSDOM js-yaml
+.js-yaml*
+
+# JSDOM jsdom
+.jsdom*
+
+# JSDOM jsesc
+.jsesc*
+
+# JSDOM json-buffer
+.json-buffer*
+
+# JSDOM json-parse-even-better-errors
+.json-parse-even-better-errors*
+
+# JSDOM json-schema-traverse
+.json-schema-traverse*
+
+# JSDOM json-stable-stringify
+.json-stable-stringify*
+
+# JSDOM json5
+.json5*
+
+# JSDOM jsonc-parser
+.jsonc-parser*
+
+# JSDOM jsonfile
+.jsonfile*
+
+# JSDOM jsonify
+.jsonify*
+
+# JSDOM jsx-ast-utils
+.jsx-ast-utils*
+
+# JSDOM keyv
+.keyv*
+
+# JSDOM kind-of
+.kind-of*
+
+# JSDOM levn
+.levn*
+
+# JSDOM lilconfig
+.lilconfig*
+
+# JSDOM lines-and-columns
+.lines-and-columns*
+
+# JSDOM load-tsconfig
+.load-tsconfig*
+
+# JSDOM loader-utils
+.loader-utils*
+
+# JSDOM locate-path
+.locate-path*
+
+# JSDOM lodash
+.lodash*
+
+# JSDOM lodash.camelcase
+.lodash.camelcase*
+
+# JSDOM lodash.debounce
+.lodash.debounce*
+
+# JSDOM lodash.memoize
+.lodash.memoize*
+
+# JSDOM lodash.merge
+.lodash.merge*
+
+# JSDOM loose-envify
+.loose-envify*
+
+# JSDOM lru-cache
+.lru-cache*
+
+# JSDOM lz-string
+.lz-string*
+
+# JSDOM magic-string
+.magic-string*
+
+# JSDOM make-dir
+.make-dir*
+
+# JSDOM math-intrinsics
+.math-intrinsics*
+
+# JSDOM media-typer
+.media-typer*
+
+# JSDOM merge-descriptors
+.merge-descriptors*
+
+# JSDOM merge-stream
+.merge-stream*
+
+# JSDOM merge2
+.merge2*
+
+# JSDOM methods
+.methods*
+
+# JSDOM micromatch
+.micromatch*
+
+# JSDOM mime
+.mime*
+
+# JSDOM mime-db
+.mime-db*
+
+# JSDOM mime-types
+.mime-types*
+
+# JSDOM min-indent
+.min-indent*
+
+# JSDOM minimatch
+.minimatch*
+
+# JSDOM minimist
+.minimist*
+
+# JSDOM minipass
+.minipass*
+
+# JSDOM mkdirp
+.mkdirp*
+
+# JSDOM mlly
+.mlly*
+
+# JSDOM ms
+.ms*
+
+# JSDOM muggle-string
+.muggle-string*
+
+# JSDOM nanoid
+.nanoid*
+
+# JSDOM natural-compare
+.natural-compare*
+
+# JSDOM negotiator
+.negotiator*
+
+# JSDOM node-domexception
+.node-domexception*
+
+# JSDOM node-fetch
+.node-fetch*
+
+# JSDOM node-releases
+.node-releases*
+
+# JSDOM normalize-package-data
+.normalize-package-data*
+
+# JSDOM normalize-path
+.normalize-path*
+
+# JSDOM npm-run-path
+.npm-run-path*
+
+# JSDOM nth-check
+.nth-check*
+
+# JSDOM object-assign
+.object-assign*
+
+# JSDOM object-hash
+.object-hash*
+
+# JSDOM object-inspect
+.object-inspect*
+
+# JSDOM object-keys
+.object-keys*
+
+# JSDOM object.assign
+.object.assign*
+
+# JSDOM object.entries
+.object.entries*
+
+# JSDOM object.fromentries
+.object.fromentries*
+
+# JSDOM object.groupby
+.object.groupby*
+
+# JSDOM object.values
+.object.values*
+
+# JSDOM obuf
+.obuf*
+
+# JSDOM on-finished
+.on-finished*
+
+# JSDOM once
+.once*
+
+# JSDOM onetime
+.onetime*
+
+# JSDOM open
+.open*
+
+# JSDOM optionator
+.optionator*
+
+# JSDOM own-keys
+.own-keys*
+
+# JSDOM p-limit
+.p-limit*
+
+# JSDOM p-locate
+.p-locate*
+
+# JSDOM p-map
+.p-map*
+
+# JSDOM p-try
+.p-try*
+
+# JSDOM parent-module
+.parent-module*
+
+# JSDOM parse-json
+.parse-json*
+
+# JSDOM parse5
+.parse5*
+
+# JSDOM parse5-htmlparser2-tree-adapter
+.parse5-htmlparser2-tree-adapter*
+
+# JSDOM parseurl
+.parseurl*
+
+# JSDOM path-exists
+.path-exists*
+
+# JSDOM path-is-absolute
+.path-is-absolute*
+
+# JSDOM path-key
+.path-key*
+
+# JSDOM path-parse
+.path-parse*
+
+# JSDOM path-scurry
+.path-scurry*
+
+# JSDOM path-to-regexp
+.path-to-regexp*
+
+# JSDOM pathe
+.pathe*
+
+# JSDOM peek-readable
+.peek-readable*
+
+# JSDOM periscopic
+.periscopic*
+
+# JSDOM picocolors
+.picocolors*
+
+# JSDOM picomatch
+.picomatch*
+
+# JSDOM pidtree
+.pidtree*
+
+# JSDOM pify
+.pify*
+
+# JSDOM pirates
+.pirates*
+
+# JSDOM pkg-types
+.pkg-types*
+
+# JSDOM portfinder
+.portfinder*
+
+# JSDOM possible-typed-array-names
+.possible-typed-array-names*
+
+# JSDOM postcss
+.postcss*
+
+# JSDOM postcss-import
+.postcss-import*
+
+# JSDOM postcss-js
+.postcss-js*
+
+# JSDOM postcss-load-config
+.postcss-load-config*
+
+# JSDOM postcss-nested
+.postcss-nested*
+
+# JSDOM postcss-selector-parser
+.postcss-selector-parser*
+
+# JSDOM postcss-value-parser
+.postcss-value-parser*
+
+# JSDOM prelude-ls
+.prelude-ls*
+
+# JSDOM pretty-bytes
+.pretty-bytes*
+
+# JSDOM process
+.process*
+
+# JSDOM process-nextick-args
+.process-nextick-args*
+
+# JSDOM prop-types
+.prop-types*
+
+# JSDOM proxy-addr
+.proxy-addr*
+
+# JSDOM prr
+.prr*
+
+# JSDOM pump
+.pump*
+
+# JSDOM punycode
+.punycode*
+
+# JSDOM qs
+.qs*
+
+# JSDOM queue-microtask
+.queue-microtask*
+
+# JSDOM range-parser
+.range-parser*
+
+# JSDOM raw-body
+.raw-body*
+
+# JSDOM react
+.react*
+
+# JSDOM react-dom
+.react-dom*
+
+# JSDOM react-is
+.react-is*
+
+# JSDOM read-cache
+.read-cache*
+
+# JSDOM readable-stream
+.readable-stream*
+
+# JSDOM readable-web-to-node-stream
+.readable-web-to-node-stream*
+
+# JSDOM readdirp
+.readdirp*
+
+# JSDOM reflect.getprototypeof
+.reflect.getprototypeof*
+
+# JSDOM regenerate
+.regenerate*
+
+# JSDOM regenerate-unicode-properties
+.regenerate-unicode-properties*
+
+# JSDOM regenerator-runtime
+.regenerator-runtime*
+
+# JSDOM regenerator-transform
+.regenerator-transform*
+
+# JSDOM regexp.prototype.flags
+.regexp.prototype.flags*
+
+# JSDOM regexpu-core
+.regexpu-core*
+
+# JSDOM regjsparser
+.regjsparser*
+
+# JSDOM require-directory
+.require-directory*
+
+# JSDOM require-from-string
+.require-from-string*
+
+# JSDOM resolve
+.resolve*
+
+# JSDOM resolve-from
+.resolve-from*
+
+# JSDOM reusify
+.reusify*
+
+# JSDOM rimraf
+.rimraf*
+
+# JSDOM rollup
+.rollup*
+
+# JSDOM rrweb-cssom
+.rrweb-cssom*
+
+# JSDOM run-parallel
+.run-parallel*
+
+# JSDOM safe-array-concat
+.safe-array-concat*
+
+# JSDOM safe-buffer
+.safe-buffer*
+
+# JSDOM safe-regex-test
+.safe-regex-test*
+
+# JSDOM safer-buffer
+.safer-buffer*
+
+# JSDOM scheduler
+.scheduler*
+
+# JSDOM semver
+.semver*
+
+# JSDOM send
+.send*
+
+# JSDOM serve-static
+.serve-static*
+
+# JSDOM set-function-length
+.set-function-length*
+
+# JSDOM set-function-name
+.set-function-name*
+
+# JSDOM setprototypeof
+.setprototypeof*
+
+# JSDOM shebang-command
+.shebang-command*
+
+# JSDOM shebang-regex
+.shebang-regex*
+
+# JSDOM shell-quote
+.shell-quote*
+
+# JSDOM side-channel
+.side-channel*
+
+# JSDOM signal-exit
+.signal-exit*
+
+# JSDOM sirv
+.sirv*
+
+# JSDOM slash
+.slash*
+
+# JSDOM source-map
+.source-map*
+
+# JSDOM source-map-js
+.source-map-js*
+
+# JSDOM source-map-support
+.source-map-support*
+
+# JSDOM space-separated-tokens
+.space-separated-tokens*
+
+# JSDOM sprintf-js
+.sprintf-js*
+
+# JSDOM stable
+.stable*
+
+# JSDOM statuses
+.statuses*
+
+# JSDOM std-env
+.std-env*
+
+# JSDOM stream-browserify
+.stream-browserify*
+
+# JSDOM stream-http
+.stream-http*
+
+# JSDOM string_decoder
+.string_decoder*
+
+# JSDOM string.prototype.matchall
+.string.prototype.matchall*
+
+# JSDOM string.prototype.trim
+.string.prototype.trim*
+
+# JSDOM string.prototype.trimend
+.string.prototype.trimend*
+
+# JSDOM string.prototype.trimstart
+.string.prototype.trimstart*
+
+# JSDOM strip-ansi
+.strip-ansi*
+
+# JSDOM strip-bom
+.strip-bom*
+
+# JSDOM strip-final-newline
+.strip-final-newline*
+
+# JSDOM strip-json-comments
+.strip-json-comments*
+
+# JSDOM stylehacks
+.stylehacks*
+
+# JSDOM stylis
+.stylis*
+
+# JSDOM supports-color
+.supports-color*
+
+# JSDOM supports-preserve-symlinks-flag
+.supports-preserve-symlinks-flag*
+
+# JSDOM synckit
+.synckit*
+
+# JSDOM system-architecture
+.system-architecture*
+
+# JSDOM tapable
+.tapable*
+
+# JSDOM tar
+.tar*
+
+# JSDOM temp-dir
+.temp-dir*
+
+# JSDOM terser
+.terser*
+
+# JSDOM text-table
+.text-table*
+
+# JSDOM thenify
+.thenify*
+
+# JSDOM thenify-all
+.thenify-all*
+
+# JSDOM tinybench
+.tinybench*
+
+# JSDOM tinypool
+.tinypool*
+
+# JSDOM tinyrainbow
+.tinyrainbow*
+
+# JSDOM tinyspy
+.tinyspy*
+
+# JSDOM to-fast-properties
+.to-fast-properties*
+
+# JSDOM to-regex-range
+.to-regex-range*
+
+# JSDOM toidentifier
+.toidentifier*
+
+# JSDOM tr46
+.tr46*
+
+# JSDOM ts-api-utils
+.ts-api-utils*
+
+# JSDOM ts-interface-checker
+.ts-interface-checker*
+
+# JSDOM tslib
+.tslib*
+
+# JSDOM tsx
+.tsx*
+
+# JSDOM type-check
+.type-check*
+
+# JSDOM type-fest
+.type-fest*
+
+# JSDOM type-is
+.type-is*
+
+# JSDOM typed-array-buffer
+.typed-array-buffer*
+
+# JSDOM typed-array-byte-length
+.typed-array-byte-length*
+
+# JSDOM typed-array-byte-offset
+.typed-array-byte-offset*
+
+# JSDOM typed-array-length
+.typed-array-length*
+
+# JSDOM typescript
+.typescript*
+
+# JSDOM ufo
+.ufo*
+
+# JSDOM undici-types
+.undici-types*
+
+# JSDOM unicode-canonical-property-names-ecmascript
+.unicode-canonical-property-names-ecmascript*
+
+# JSDOM unicode-match-property-ecmascript
+.unicode-match-property-ecmascript*
+
+# JSDOM unicode-match-property-value-ecmascript
+.unicode-match-property-value-ecmascript*
+
+# JSDOM unicode-property-aliases-ecmascript
+.unicode-property-aliases-ecmascript*
+
+# JSDOM unique-string
+.unique-string*
+
+# JSDOM universalify
+.universalify*
+
+# JSDOM unpipe
+.unpipe*
+
+# JSDOM update-browserslist-db
+.update-browserslist-db*
+
+# JSDOM uri-js
+.uri-js*
+
+# JSDOM url
+.url*
+
+# JSDOM util
+.util*
+
+# JSDOM util-deprecate
+.util-deprecate*
+
+# JSDOM utils-merge
+.utils-merge*
+
+# JSDOM v8-compile-cache-lib
+.v8-compile-cache-lib*
+
+# JSDOM validate-npm-package-license
+.validate-npm-package-license*
+
+# JSDOM vary
+.vary*
+
+# JSDOM verror
+.verror*
+
+# JSDOM vite
+.vite*
+
+# JSDOM w3c-xmlserializer
+.w3c-xmlserializer*
+
+# JSDOM webidl-conversions
+.webidl-conversions*
+
+# JSDOM whatwg-encoding
+.whatwg-encoding*
+
+# JSDOM whatwg-mimetype
+.whatwg-mimetype*
+
+# JSDOM whatwg-url
+.whatwg-url*
+
+# JSDOM which
+.which*
+
+# JSDOM which-boxed-primitive
+.which-boxed-primitive*
+
+# JSDOM which-builtin-type
+.which-builtin-type*
+
+# JSDOM which-collection
+.which-collection*
+
+# JSDOM which-typed-array
+.which-typed-array*
+
+# JSDOM why-is-node-running
+.why-is-node-running*
+
+# JSDOM word-wrap
+.word-wrap*
+
+# JSDOM wrap-ansi
+.wrap-ansi*
+
+# JSDOM wrappy
+.wrappy*
+
+# JSDOM write-file-atomic
+.write-file-atomic*
+
+# JSDOM ws
+.ws*
+
+# JSDOM xml-name-validator
+.xml-name-validator*
+
+# JSDOM xmlchars
+.xmlchars*
+
+# JSDOM yallist
+.yallist*
+
+# JSDOM yaml
+.yaml*
+
+# JSDOM yocto-queue
+.yocto-queue*
+
+# JSDOM zod
+.zod*
+
 ```
