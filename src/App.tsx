@@ -14,13 +14,8 @@ import { OrderTrackingView } from './components/views/OrderTrackingView';
 import { VendorDashboardView } from './components/views/VendorDashboardView';
 import { RiderPortalView } from './components/views/RiderPortalView';
 import { SuperAdminView } from './components/views/SuperAdminView';
-import { 
-  mockVendors, 
-  mockMenuItems, 
-  mockActiveOrder, 
-  mockSavedAddresses 
-} from './data/mockData';
-import { AppView, Vendor, CartItem, Order, Address, CityZone } from './types';
+import { fetchVendors, fetchMenuItems } from './services/api';
+import { AppView, Vendor, CartItem, Order, Address, CityZone, MenuItem } from './types';
 import { CheckCircle2, X } from 'lucide-react';
 
 export default function App() {
@@ -28,11 +23,40 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [currentCity, setCurrentCity] = useState<CityZone>('Makurdi');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedVendor, setSelectedVendor] = useState<Vendor>(mockVendors[0]);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [activeOrder, setActiveOrder] = useState<Order>(mockActiveOrder);
-  const [savedAddresses, setSavedAddresses] = useState<Address[]>(mockSavedAddresses);
+  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch data from Supabase on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [fetchedVendors] = await Promise.all([
+          fetchVendors(),
+        ]);
+        setVendors(fetchedVendors);
+        if (fetchedVendors.length > 0) {
+          setSelectedVendor(fetchedVendors[0]);
+          const fetchedMenuItems = await fetchMenuItems(fetchedVendors[0].id);
+          setMenuItems(fetchedMenuItems);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+        showToast('Failed to connect to database. Please check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Sync dark mode class on <html> / document element
   useEffect(() => {
@@ -69,13 +93,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectVendor = (vendorOrId: Vendor | string) => {
+  const handleSelectVendor = async (vendorOrId: Vendor | string) => {
+    let vendor: Vendor;
     if (typeof vendorOrId === 'string') {
-      const found = mockVendors.find(v => v.id === vendorOrId) || mockVendors[0];
-      setSelectedVendor(found);
+      const found = vendors.find(v => v.id === vendorOrId);
+      if (!found) return;
+      vendor = found;
     } else {
-      setSelectedVendor(vendorOrId);
+      vendor = vendorOrId;
     }
+    setSelectedVendor(vendor);
+    
+    // Fetch menu items for the selected vendor
+    try {
+      const fetchedMenuItems = await fetchMenuItems(vendor.id);
+      setMenuItems(fetchedMenuItems);
+    } catch (err) {
+      showToast('Failed to load menu items');
+    }
+    
     setCurrentView('restaurant-detail');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -188,10 +224,37 @@ export default function App() {
 
       {/* MAIN VIEW CONTENT CONTAINER */}
       <main className="flex-1 w-full">
-        {currentView === 'explore' && (
+        {loading && (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 border-4 border-[#aa2d00] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-semibold">Loading delicious options...</p>
+            </div>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="text-center space-y-4 max-w-md px-6">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
+                <X className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Connection Error</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2.5 bg-[#aa2d00] hover:bg-[#aa2d00]/90 text-white rounded-full text-sm font-bold transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && currentView === 'explore' && (
           <ExploreView
-            vendors={mockVendors}
-            menuItems={mockMenuItems}
+            vendors={vendors}
+            menuItems={menuItems}
             onSelectVendor={handleSelectVendor}
             onAddToCart={handleAddToCart}
             currentCity={currentCity}
@@ -199,17 +262,17 @@ export default function App() {
           />
         )}
 
-        {currentView === 'restaurants' && (
+        {!loading && !error && currentView === 'restaurants' && (
           <RestaurantsView
-            vendors={mockVendors}
+            vendors={vendors}
             onSelectVendor={handleSelectVendor}
           />
         )}
 
-        {currentView === 'restaurant-detail' && (
+        {!loading && !error && currentView === 'restaurant-detail' && selectedVendor && (
           <RestaurantDetailView
             vendor={selectedVendor}
-            menuItems={mockMenuItems}
+            menuItems={menuItems}
             cartItems={cartItems}
             onAddToCart={handleAddToCart}
             onUpdateCartItemQty={handleUpdateCartItemQty}
@@ -219,7 +282,7 @@ export default function App() {
           />
         )}
 
-        {currentView === 'checkout' && (
+        {!loading && !error && currentView === 'checkout' && (
           <CheckoutView
             cartItems={cartItems}
             savedAddresses={savedAddresses}
@@ -229,7 +292,7 @@ export default function App() {
           />
         )}
 
-        {currentView === 'tracking' && (
+        {!loading && !error && currentView === 'tracking' && activeOrder && (
           <OrderTrackingView
             order={activeOrder}
             onConfirmDeliveryReceipt={handleConfirmDeliveryReceipt}
@@ -237,14 +300,14 @@ export default function App() {
           />
         )}
 
-        {currentView === 'vendor-dashboard' && (
+        {!loading && !error && currentView === 'vendor-dashboard' && (
           <VendorDashboardView
-            menuItems={mockMenuItems}
+            menuItems={menuItems}
             onShowToast={showToast}
           />
         )}
 
-        {currentView === 'rider-portal' && (
+        {!loading && !error && currentView === 'rider-portal' && activeOrder && (
           <RiderPortalView
             activeOrder={activeOrder}
             onConfirmDeliveryByRider={handleConfirmDeliveryByRider}
@@ -252,7 +315,7 @@ export default function App() {
           />
         )}
 
-        {currentView === 'admin' && (
+        {!loading && !error && currentView === 'admin' && (
           <SuperAdminView
             onShowToast={showToast}
           />
