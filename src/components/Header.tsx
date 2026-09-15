@@ -36,6 +36,8 @@ interface HeaderProps {
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   activeOrderCount?: number;
+  user?: any | null;
+  onSignOut?: () => Promise<void>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -53,6 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
   setCurrentCity: externalSetCity,
   searchQuery: externalSearchQuery,
   setSearchQuery: externalSetSearchQuery,
+  user,
+  onSignOut,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
@@ -95,7 +99,9 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleAuthClick = (mode: 'login' | 'register' | 'vendor' = 'login') => {
-    if (typeof openAuthModal === 'function') {
+    if (user && onSignOut) {
+      onSignOut();
+    } else if (typeof openAuthModal === 'function') {
       openAuthModal(mode);
     }
   };
@@ -309,9 +315,13 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => handleAuthClick('login')}
             className="p-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-colors flex items-center justify-center"
             id="header-user-btn"
-            aria-label="Sign In or Account"
+            aria-label={user ? 'Sign Out' : 'Sign In or Account'}
           >
-            <User className="w-4 h-4" />
+            {user ? (
+              <span className="text-xs font-bold">{user.email?.charAt(0).toUpperCase()}</span>
+            ) : (
+              <User className="w-4 h-4" />
+            )}
           </button>
 
           {/* Mobile Hamburger Toggle */}
