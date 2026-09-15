@@ -1,56 +1,69 @@
 ```
-# Build artifacts
-dist/
-build/
-*.js
-*.css
-
 # Dependencies
 node_modules/
 
-# Logs and temp files
-*.log
-*.tmp
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
+# Build artifacts
+dist/
+build/
+target/
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py.class
+.Python
+env/
+venv/
+.venv/
+.venv.bak/
+pip-log.txt
+pip-selfcheck.json
+.python-version
 
-# Compiled
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
 # Coverage
+.coverage
 coverage/
 htmlcov/
-.coverage
 
-# MyPy
+# Testing
 .mypy_cache/
-
-# PyTest
 .pytest_cache/
+.hypothesis/
 
-# Gradle
-.gradle/
+# Distribution
+*.tar.gz
+*.egg-info/
+*.egg
 
-# Target
-target/
+# OS
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+*:*
+._*
+
+# Browsers
+hs_err_pid*
 
 # Compressed
 *.zip

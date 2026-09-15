@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ExploreView } from './components/views/ExploreView';
 import { RestaurantsView } from './components/views/RestaurantsView';
 import { RestaurantDetailView } from './components/views/RestaurantDetailView';
@@ -14,11 +15,13 @@ import { OrderTrackingView } from './components/views/OrderTrackingView';
 import { VendorDashboardView } from './components/views/VendorDashboardView';
 import { RiderPortalView } from './components/views/RiderPortalView';
 import { SuperAdminView } from './components/views/SuperAdminView';
+import AuthPage from './views/AuthPage';
 import { fetchVendors, fetchMenuItems } from './services/api';
 import { AppView, Vendor, CartItem, Order, Address, CityZone, MenuItem } from './types';
 import { CheckCircle2, X } from 'lucide-react';
 
-export default function App() {
+function AppContent() {
+  const { user, userProfile, loading: authLoading } = useAuth();
   const [currentView, setCurrentView] = useState<AppView>('explore');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [currentCity, setCurrentCity] = useState<CityZone>('Makurdi');
@@ -87,6 +90,7 @@ export default function App() {
     else if (view === 'tracking') targetView = 'tracking';
     else if (view === 'restaurants') targetView = 'restaurants';
     else if (view === 'restaurant-detail') targetView = 'restaurant-detail';
+    else if (view === 'auth') targetView = 'explore'; // Don't navigate to auth if already logged in
     else targetView = 'explore';
 
     setCurrentView(targetView);
@@ -192,6 +196,22 @@ export default function App() {
     }));
   };
 
+  // Show auth page if not logged in and trying to access protected routes
+  if (!authLoading && !user && (currentView === 'vendor-dashboard' || currentView === 'rider-portal' || currentView === 'admin')) {
+    return <AuthPage />;
+  }
+
+  // Auto-redirect based on user role after login
+  useEffect(() => {
+    if (user && userProfile) {
+      if (userProfile.role === 'vendor' && currentView === 'explore') {
+        setCurrentView('vendor-dashboard');
+      } else if (userProfile.role === 'rider' && currentView === 'explore') {
+        setCurrentView('rider-portal');
+      }
+    }
+  }, [user, userProfile, currentView]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
@@ -218,7 +238,16 @@ export default function App() {
           }
         }}
         openAuthModal={(mode) => {
-          showToast(`User Account (${mode || 'profile'}) - Signed in as Emeka Daniel`);
+          if (!user) {
+            setCurrentView('auth');
+          } else {
+            showToast(`User Account (${mode || 'profile'}) - Signed in as ${user.email}`);
+          }
+        }}
+        user={user}
+        onSignOut={async () => {
+          await useAuth().signOut();
+          setCurrentView('explore');
         }}
       />
 
@@ -342,5 +371,13 @@ export default function App() {
       )}
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
