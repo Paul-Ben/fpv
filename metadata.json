@@ -1,0 +1,6 @@
+{
+  "name": "FoodPalace",
+  "description": "Multi-vendor food ordering, payment, and delivery platform for Nigerian culinary markets with real-time dispatch tracking, vendor management, and instant Naira settlement.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
