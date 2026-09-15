@@ -1,0 +1,3258 @@
+Below is a **development-ready PRD + Software Requirements Specification (SRS/SOW)** for **FoodPalace**.
+
+# FoodPalace — Product Requirements Document (PRD) & Software Requirements Specification (SRS)
+
+**Project:** FoodPalace
+**Product Type:** Multi-vendor food ordering, payment and delivery platform
+**Target Market:** Nigeria initially, with architecture suitable for expansion
+**Frontend:** Next.js + TypeScript
+**Backend:** Laravel API
+**Database:** PostgreSQL
+**Database Hosting:** Supabase
+**Backend Hosting:** Railway
+**Frontend Hosting:** Vercel
+**Payment:** Paystack and/or Flutterwave
+**Architecture:** API-first, modular, multi-vendor platform
+
+---
+
+# 1. Executive Summary
+
+**FoodPalace** is a multi-vendor food ordering and delivery platform that connects:
+
+1. **Customers** who want to discover food vendors, browse menus, order food and make payments.
+2. **Food Vendors** who want to register their food businesses, advertise their outlets, publish menus and receive/manage customer orders.
+3. **Dispatch Riders/Delivery Personnel** who collect orders from vendors and deliver them to customers.
+4. **Administrators** who manage the platform, vendors, customers, payments, orders, dispatch operations, commissions and platform configuration.
+
+The system will provide an end-to-end workflow:
+
+> **Customer → Browse Vendor → Select Food → Cart → Checkout → Payment → Vendor Confirmation → Food Preparation → Dispatch Assignment → Pickup → Delivery → Customer Confirmation → Order Completion**
+
+FoodPalace should initially be designed as a **single-city/local-market platform**, but the architecture should support multiple cities, vendors, delivery zones and expansion later.
+
+---
+
+# 2. Product Vision
+
+FoodPalace aims to become a reliable digital marketplace for discovering and ordering food from local restaurants, fast-food outlets, caterers and independent food vendors.
+
+The platform should solve several common problems:
+
+### Customers
+
+* Difficulty discovering nearby food vendors.
+* Lack of accurate online menus.
+* Difficulty placing orders through phone/WhatsApp.
+* Uncertainty about order status.
+* Payment inconvenience.
+* Difficulty tracking deliveries.
+* Lack of reliable delivery confirmation.
+
+### Vendors
+
+* Limited digital visibility.
+* Lack of an online ordering system.
+* Difficulty maintaining digital menus.
+* Manual order management.
+* Difficulty managing delivery requests.
+* Lack of customer/order analytics.
+
+### Dispatch
+
+* Unstructured delivery assignments.
+* Difficulty knowing pickup and delivery locations.
+* Lack of delivery confirmation.
+* Poor visibility into completed deliveries.
+
+### Platform
+
+* Need for centralized vendor management.
+* Commission management.
+* Order/payment monitoring.
+* Vendor verification.
+* Delivery management.
+* Reporting and analytics.
+
+---
+
+# 3. Product Objectives
+
+FoodPalace should:
+
+1. Allow customers to register and create accounts.
+2. Allow customers to browse food vendors.
+3. Allow vendors to register their businesses.
+4. Allow vendors to create and manage food menus.
+5. Allow customers to browse vendor menus.
+6. Allow customers to add food to cart.
+7. Allow customers to place orders.
+8. Allow customers to select delivery addresses.
+9. Allow customers to pay electronically.
+10. Allow vendors to receive and process orders.
+11. Allow dispatch personnel to receive delivery assignments.
+12. Allow dispatch personnel to confirm pickup.
+13. Allow dispatch personnel to confirm delivery.
+14. Allow customers to confirm receipt.
+15. Maintain complete order history.
+16. Provide notifications throughout the order lifecycle.
+17. Provide administrators with complete platform control.
+18. Support vendor advertising/promotional listings.
+19. Support commissions and platform revenue.
+20. Provide dashboards and analytics.
+
+---
+
+# 4. User Roles
+
+The system should initially support the following roles.
+
+| Role                | Description                      |
+| ------------------- | -------------------------------- |
+| Super Administrator | Complete platform control        |
+| Administrator       | Platform operations              |
+| Vendor              | Food business owner/operator     |
+| Vendor Staff        | Vendor employees managing orders |
+| Customer            | Purchases food                   |
+| Dispatcher          | Handles food pickup and delivery |
+| Dispatcher Manager  | Manages dispatch operations      |
+| Support Agent       | Handles customer/vendor support  |
+
+The RBAC system should be permission-based rather than relying only on hardcoded roles.
+
+---
+
+# 5. High-Level System Architecture
+
+```text
+                     ┌─────────────────────┐
+                     │      Customers      │
+                     │ Web / Mobile Browser│
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │      Next.js        │
+                     │     Frontend        │
+                     │      Vercel         │
+                     └──────────┬──────────┘
+                                │ REST API
+                                ▼
+                     ┌─────────────────────┐
+                     │       Laravel       │
+                     │      API Backend    │
+                     │       Railway       │
+                     └──────┬──────┬───────┘
+                            │      │
+              ┌─────────────┘      └─────────────┐
+              ▼                                  ▼
+     ┌──────────────────┐               ┌──────────────────┐
+     │ Supabase         │               │ Payment Gateway  │
+     │ PostgreSQL       │               │ Paystack /       │
+     │ Database         │               │ Flutterwave      │
+     └──────────────────┘               └──────────────────┘
+              │
+              ▼
+     ┌──────────────────┐
+     │ File/Object      │
+     │ Storage          │
+     └──────────────────┘
+```
+
+---
+
+# 6. Proposed Technology Stack
+
+## Frontend
+
+**Next.js**
+
+Recommended:
+
+* Next.js 15+
+* TypeScript
+* App Router
+* React
+* Tailwind CSS or Bootstrap 5
+* React Hook Form
+* Zod
+* TanStack Query
+* Axios/fetch
+* Zustand where appropriate
+
+Deployment:
+
+**Vercel**
+
+---
+
+# 7. Backend
+
+**Laravel**
+
+Recommended:
+
+* Laravel 12
+* PHP 8.3+
+* RESTful API
+* Laravel Sanctum
+* Laravel Queues
+* Laravel Notifications
+* Laravel Events/Listeners
+* Laravel Scheduler
+* Form Requests
+* API Resources
+* Service Layer
+* Policies
+* Jobs
+* DTOs where useful
+
+Deployment:
+
+**Railway**
+
+---
+
+# 8. Database
+
+**PostgreSQL**
+
+Hosted on:
+
+**Supabase**
+
+The application should use PostgreSQL as the primary transactional database.
+
+Recommended considerations:
+
+* UUID primary keys
+* Foreign key constraints
+* PostgreSQL indexes
+* JSONB only where justified
+* database transactions
+* soft deletes where appropriate
+* audit timestamps
+* database constraints
+* unique indexes
+* partial indexes where beneficial
+
+---
+
+# 9. External Services
+
+The architecture should support:
+
+### Payment
+
+* Paystack
+* Flutterwave
+
+### Email
+
+* SMTP provider
+* Resend
+* Mailgun
+* Amazon SES
+
+### SMS
+
+Optional:
+
+* Termii
+* Africa's Talking
+* Twilio
+
+### Maps/Location
+
+Potential:
+
+* Google Maps
+* Mapbox
+* OpenStreetMap
+
+### File Storage
+
+* Supabase Storage
+* Cloudinary
+* S3-compatible storage
+
+---
+
+# 10. Core Customer Features
+
+## 10.1 Customer Registration
+
+Customers should be able to register using:
+
+* Name
+* Email
+* Phone
+* Password
+* Password confirmation
+
+Optional:
+
+* Google authentication
+* Apple authentication
+* social authentication
+
+Email/phone verification should be supported.
+
+---
+
+# 11. Customer Profile
+
+Customer profile should contain:
+
+* Full name
+* Email
+* Phone
+* Profile photo
+* Default delivery address
+* Saved addresses
+* Account status
+* Registration date
+
+Customers should be able to manage multiple addresses.
+
+Example:
+
+```text
+Home
+Office
+School
+Other
+```
+
+---
+
+# 12. Vendor Discovery
+
+Customers should be able to discover vendors through:
+
+* Search
+* Categories
+* Location
+* Cuisine
+* Food type
+* Popular vendors
+* Featured vendors
+* Sponsored vendors
+* New vendors
+* Deals/promotions
+
+Example categories:
+
+```text
+Fast Food
+African Food
+Chinese
+Pizza
+Burger
+Chicken
+Bakery
+Drinks
+Catering
+Desserts
+Local Food
+```
+
+---
+
+# 13. Vendor Profile
+
+Each vendor should have a public profile.
+
+Example:
+
+```text
+Vendor Logo
+
+Mama's Kitchen
+
+★★★★★ 4.7
+
+African Cuisine
+
+Open Now
+
+Delivery: ₦800
+Estimated Delivery: 30–45 mins
+
+About
+Menu
+Reviews
+```
+
+Vendor information:
+
+* Business name
+* Logo
+* Cover image
+* Description
+* Address
+* Phone
+* Opening hours
+* Cuisine type
+* Delivery zones
+* Minimum order
+* Delivery fee
+* Estimated preparation time
+* Rating
+* Reviews
+* Menu
+
+---
+
+# 14. Vendor Registration
+
+Food vendors should be able to register through the vendor portal.
+
+Information:
+
+### Business
+
+* Business name
+* Business registration name
+* Description
+* Phone
+* Email
+* Address
+* City
+* State
+* Country
+* Business category
+* Cuisine categories
+
+### Owner
+
+* Full name
+* Phone
+* Email
+* ID information where required
+
+### Banking
+
+* Bank name
+* Account number
+* Account name
+
+### Documentation
+
+Potentially:
+
+* Business registration document
+* Government ID
+* Food safety certification
+* Other verification documents
+
+Vendor verification should be controlled by administrators.
+
+---
+
+# 15. Vendor Approval Workflow
+
+```text
+Vendor Registers
+       ↓
+Profile Submitted
+       ↓
+Admin Review
+       ↓
+ ┌─────┴─────┐
+ │           │
+Reject     Approve
+ │           │
+Correction   ↓
+             Active
+```
+
+Vendor status:
+
+```text
+Draft
+Pending Review
+Approved
+Rejected
+Suspended
+Inactive
+```
+
+---
+
+# 16. Vendor Menu Management
+
+Vendors should be able to:
+
+* Create menus
+* Create menu categories
+* Add food items
+* Edit food items
+* Delete food items
+* Disable food items
+* Set prices
+* Add food images
+* Add descriptions
+* Set preparation time
+* Set availability
+* Add variations
+* Add extras
+* Create combos
+
+Example:
+
+```text
+MAIN DISHES
+
+Jollof Rice
+₦3,500
+
+Description:
+Served with chicken and plantain.
+
+Extras:
++ Chicken ₦1,500
++ Plantain ₦500
++ Coleslaw ₦700
+```
+
+---
+
+# 17. Menu Item Variations
+
+Food items should support options.
+
+Example:
+
+**Pizza**
+
+Size:
+
+```text
+Small       ₦5,000
+Medium      ₦7,000
+Large       ₦9,000
+```
+
+Extras:
+
+```text
+Extra Cheese +₦1,000
+Chicken      +₦1,500
+Mushroom     +₦700
+```
+
+Database design should therefore separate:
+
+* Menu Items
+* Variants
+* Modifier Groups
+* Modifiers
+
+---
+
+# 18. Vendor Advertising
+
+Vendors should be able to promote their businesses.
+
+Advertising options may include:
+
+### Featured Vendor
+
+Appears prominently on homepage.
+
+### Sponsored Listing
+
+Vendor appears above organic search results.
+
+### Banner Advertising
+
+Vendor purchases promotional banner placement.
+
+### Food Promotion
+
+Example:
+
+> **20% OFF Jollof Rice this weekend**
+
+The platform should record:
+
+* Campaign
+* Vendor
+* Budget
+* Start date
+* End date
+* Placement
+* Status
+* Impressions
+* Clicks
+
+Advertising can become an additional FoodPalace revenue stream.
+
+---
+
+# 19. Customer Cart
+
+Customers should be able to:
+
+* Add items
+* Remove items
+* Change quantities
+* Select variations
+* Select extras
+* Add notes
+* View subtotal
+* View delivery fee
+* View service fee
+* View discounts
+* View total
+
+Important business rule:
+
+**A cart should normally contain items from one vendor per order.**
+
+If multi-vendor ordering is eventually supported, the system should split the cart into separate vendor orders.
+
+For MVP, **single-vendor checkout is strongly recommended.**
+
+---
+
+# 20. Checkout
+
+Checkout should collect:
+
+### Customer
+
+* Name
+* Phone
+
+### Delivery
+
+* Address
+* City
+* State
+* Landmark
+* Delivery instructions
+* Latitude
+* Longitude
+
+### Order
+
+* Food items
+* Quantities
+* Variations
+* Extras
+* Notes
+
+### Charges
+
+```text
+Food Subtotal
+Delivery Fee
+Service Fee
+Discount
+Tax (if applicable)
+--------------------------------
+TOTAL
+```
+
+---
+
+# 21. Order Placement
+
+When a customer clicks:
+
+> **Place Order**
+
+The backend should:
+
+1. Validate cart.
+2. Validate vendor status.
+3. Validate menu availability.
+4. Validate prices.
+5. Calculate order total server-side.
+6. Calculate delivery fee.
+7. Create order.
+8. Create order items.
+9. Create payment record.
+10. Initialize payment.
+11. Return payment authorization information.
+
+**The frontend must never be trusted to calculate the final payable amount.**
+
+---
+
+# 22. Payment
+
+Recommended initial payment methods:
+
+* Paystack
+* Flutterwave
+
+Potential payment options:
+
+* Card
+* Bank transfer
+* USSD
+* Mobile payment where supported
+
+Payment states:
+
+```text
+Pending
+Processing
+Successful
+Failed
+Cancelled
+Refunded
+Partially Refunded
+```
+
+---
+
+# 23. Payment Webhooks
+
+Payment providers must communicate with Laravel through secure webhooks.
+
+Example:
+
+```text
+Paystack
+    ↓
+Laravel Webhook
+    ↓
+Verify Signature
+    ↓
+Verify Transaction
+    ↓
+Update Payment
+    ↓
+Update Order
+    ↓
+Notify Customer/Vendor
+```
+
+Never mark an order as paid based solely on the frontend redirect.
+
+The backend must verify the transaction independently.
+
+---
+
+# 24. Order Lifecycle
+
+Recommended order state machine:
+
+```text
+PENDING_PAYMENT
+       ↓
+PAID
+       ↓
+VENDOR_PENDING
+       ↓
+ACCEPTED
+       ↓
+PREPARING
+       ↓
+READY_FOR_PICKUP
+       ↓
+DISPATCH_ASSIGNED
+       ↓
+PICKED_UP
+       ↓
+OUT_FOR_DELIVERY
+       ↓
+DELIVERED
+       ↓
+CUSTOMER_CONFIRMED
+       ↓
+COMPLETED
+```
+
+Alternative failure states:
+
+```text
+PAYMENT_FAILED
+CANCELLED
+REJECTED
+REFUNDED
+DELIVERY_FAILED
+```
+
+---
+
+# 25. Vendor Order Management
+
+Vendor dashboard should contain:
+
+```text
+New Orders
+Preparing
+Ready for Pickup
+Completed
+Cancelled
+```
+
+For a new order:
+
+```text
+ORDER #FP-100001
+
+Customer:
+John Doe
+
+Items:
+Jollof Rice × 2
+Chicken × 2
+Plantain × 1
+
+Total:
+₦9,500
+
+Delivery:
+Wurukum, Makurdi
+
+[Accept Order]
+[Reject Order]
+```
+
+---
+
+# 26. Vendor Order Acceptance
+
+Vendor should have a configurable response period.
+
+Example:
+
+> Vendor must respond within 5 minutes.
+
+If the vendor does not respond:
+
+```text
+Order → Vendor Timeout
+```
+
+The platform can:
+
+* Notify vendor
+* Alert support
+* Cancel automatically
+* Reassign where appropriate
+
+---
+
+# 27. Food Preparation
+
+After accepting an order:
+
+```text
+ACCEPTED
+   ↓
+PREPARING
+   ↓
+READY FOR PICKUP
+```
+
+Vendor should be able to provide estimated preparation time.
+
+Example:
+
+> Ready in approximately 25 minutes.
+
+---
+
+# 28. Dispatch Management
+
+Dispatch personnel should have a dedicated portal.
+
+Dashboard:
+
+```text
+Available Deliveries
+Active Delivery
+Completed Deliveries
+Earnings
+Delivery History
+```
+
+Dispatch assignment:
+
+```text
+ORDER #FP-100001
+
+Pickup:
+Mama's Kitchen
+
+Delivery:
+Customer Location
+
+Distance:
+--
+
+Customer:
+John Doe
+
+Phone:
+XXXXXXXXXX
+
+[Accept Delivery]
+```
+
+---
+
+# 29. Dispatch Assignment
+
+Dispatch assignment can initially be manual.
+
+### MVP
+
+Admin/Dispatcher Manager assigns rider.
+
+### Future
+
+Automated assignment based on:
+
+* Distance
+* Rider availability
+* Current workload
+* Vendor location
+* Customer location
+* Delivery zones
+* Rider performance
+
+---
+
+# 30. Pickup Confirmation
+
+Dispatcher arrives at vendor.
+
+Dispatcher selects:
+
+> **Confirm Pickup**
+
+System records:
+
+* Rider
+* Timestamp
+* Order
+* GPS coordinates if enabled
+* Pickup confirmation
+
+Order becomes:
+
+```text
+PICKED_UP
+```
+
+---
+
+# 31. Delivery Process
+
+Dispatcher delivers order to customer.
+
+Dispatcher selects:
+
+> **Confirm Delivery**
+
+Possible confirmation mechanisms:
+
+### Option A — Customer OTP
+
+Customer provides a 4–6 digit OTP.
+
+```text
+Customer OTP: 4729
+
+Dispatcher:
+Enter OTP
+
+[Confirm Delivery]
+```
+
+### Option B — Customer Confirmation
+
+Customer clicks:
+
+> "I Received My Order"
+
+### Option C — Delivery Evidence
+
+Optional:
+
+* Signature
+* Photo
+* GPS coordinates
+
+For the MVP, **OTP-based confirmation is recommended**.
+
+---
+
+# 32. Customer Delivery Confirmation
+
+After dispatch confirmation:
+
+```text
+Your order has been delivered.
+
+Order #FP-100001
+
+[Confirm Receipt]
+```
+
+Customer confirms.
+
+Order:
+
+```text
+DELIVERED
+      ↓
+CUSTOMER_CONFIRMED
+      ↓
+COMPLETED
+```
+
+---
+
+# 33. Delivery OTP
+
+At the point of dispatch assignment or order readiness:
+
+```text
+Delivery OTP generated
+```
+
+OTP should be:
+
+* Random
+* Short-lived
+* Hashed in database
+* Rate limited
+* Invalidated after successful use
+
+Never store the OTP in plaintext if avoidable.
+
+---
+
+# 34. Order Tracking
+
+Customer should see:
+
+```text
+✓ Order Placed
+✓ Payment Confirmed
+✓ Vendor Accepted
+✓ Food Being Prepared
+✓ Ready for Pickup
+✓ Dispatcher Assigned
+✓ Order Picked Up
+● Out for Delivery
+○ Delivered
+```
+
+---
+
+# 35. Notifications
+
+Notifications should be event-driven.
+
+### Customer
+
+* Registration
+* Email verification
+* Order placed
+* Payment successful
+* Vendor accepted
+* Vendor rejected
+* Food preparing
+* Food ready
+* Dispatch assigned
+* Food picked up
+* Out for delivery
+* Delivery completed
+* Order cancelled
+* Refund
+* Promotional notification
+
+### Vendor
+
+* New order
+* Payment confirmed
+* Order cancellation
+* Customer issue
+* New review
+
+### Dispatcher
+
+* New assignment
+* Assignment cancelled
+* Pickup reminder
+* Delivery reminder
+
+---
+
+# 36. Notification Channels
+
+Architecture should support:
+
+```text
+In-App
+Email
+SMS
+Push Notifications
+WhatsApp — Future
+```
+
+Notifications should be queued rather than blocking the order request.
+
+---
+
+# 37. Customer Reviews
+
+Customers should be able to review:
+
+### Vendor
+
+* Overall rating
+* Food quality
+* Packaging
+* Service
+
+### Delivery
+
+* Delivery speed
+* Dispatcher professionalism
+
+Example:
+
+```text
+★★★★☆
+4.5
+
+Food Quality: 5
+Delivery: 4
+Packaging: 5
+
+Comment:
+Great food and fast delivery.
+```
+
+---
+
+# 38. Vendor Ratings
+
+Vendor rating should be calculated from completed orders/reviews.
+
+Example:
+
+```text
+4.7 ★
+324 Reviews
+```
+
+Only customers with completed orders should be allowed to review that vendor.
+
+---
+
+# 39. Customer Order History
+
+Customer dashboard:
+
+```text
+My Orders
+
+#FP-100001
+Mama's Kitchen
+₦8,500
+Completed
+
+#FP-100002
+Food Hub
+₦12,000
+Out for Delivery
+```
+
+Customer can:
+
+* View details
+* Reorder
+* Download receipt
+* Review
+* Report issue
+
+---
+
+# 40. Vendor Dashboard
+
+Vendor dashboard should provide:
+
+### Summary
+
+```text
+Today's Orders       32
+Today's Revenue      ₦185,000
+Pending Orders       4
+Preparing             7
+Completed             21
+```
+
+### Analytics
+
+* Revenue
+* Orders
+* Average order value
+* Popular food
+* Customer count
+* Cancelled orders
+* Reviews
+* Conversion
+* Advertising performance
+
+---
+
+# 41. Dispatcher Dashboard
+
+```text
+Today's Deliveries
+12
+
+Completed
+8
+
+Pending
+3
+
+Failed
+1
+
+Earnings
+₦24,000
+```
+
+---
+
+# 42. Admin Dashboard
+
+Administrator should see:
+
+```text
+Total Customers
+Total Vendors
+Active Vendors
+Total Orders
+Today's Orders
+Revenue
+Platform Commission
+Pending Payments
+Pending Vendor Approvals
+Pending Deliveries
+```
+
+---
+
+# 43. Admin Vendor Management
+
+Admin should be able to:
+
+* View vendors
+* Approve vendors
+* Reject vendors
+* Suspend vendors
+* Reactivate vendors
+* Edit vendor profiles
+* View documents
+* View vendor orders
+* View vendor revenue
+* Configure commissions
+
+---
+
+# 44. Admin Customer Management
+
+Admin can:
+
+* Search customers
+* View profiles
+* Suspend accounts
+* Restore accounts
+* View order history
+* View payments
+* View complaints
+* View reviews
+
+---
+
+# 45. Commission System
+
+FoodPalace should support platform commissions.
+
+Example:
+
+Customer pays:
+
+```text
+Food:             ₦10,000
+Delivery:          ₦1,000
+Service Fee:         ₦300
+-------------------------
+Total:             ₦11,300
+```
+
+FoodPalace commission:
+
+```text
+10% of food subtotal = ₦1,000
+```
+
+Vendor settlement:
+
+```text
+₦10,000 - ₦1,000
+= ₦9,000
+```
+
+Commission configuration should support:
+
+* Global percentage
+* Vendor-specific percentage
+* Category-specific percentage
+* Fixed fee
+* Percentage + fixed fee
+
+---
+
+# 46. Vendor Settlement
+
+The system should maintain vendor financial records.
+
+Example:
+
+```text
+Order
+   ↓
+Payment
+   ↓
+Commission
+   ↓
+Vendor Balance
+   ↓
+Settlement
+```
+
+Vendor wallet/ledger should record:
+
+* Credit
+* Commission
+* Refund
+* Adjustment
+* Settlement
+* Withdrawal
+
+---
+
+# 47. Refund System
+
+Admin should be able to initiate refunds.
+
+Possible scenarios:
+
+* Vendor rejected paid order
+* Food unavailable
+* Delivery failed
+* Duplicate payment
+* Customer dispute
+
+Refund lifecycle:
+
+```text
+Requested
+Approved
+Processing
+Completed
+Failed
+```
+
+---
+
+# 48. Delivery Fee System
+
+Delivery fees should be configurable.
+
+Possible models:
+
+### Flat Rate
+
+```text
+₦1,000
+```
+
+### Zone Based
+
+```text
+Zone A → ₦700
+Zone B → ₦1,000
+Zone C → ₦1,500
+```
+
+### Distance Based
+
+```text
+Base Fee + Distance × Rate
+```
+
+Architecture should support all three.
+
+---
+
+# 49. Delivery Zones
+
+Admin should be able to define delivery zones.
+
+Example:
+
+```text
+Zone A
+0–3 km
+
+Zone B
+3–7 km
+
+Zone C
+7–12 km
+```
+
+Each zone can have:
+
+* Delivery fee
+* Minimum order
+* Estimated delivery time
+* Active/inactive status
+
+---
+
+# 50. Search
+
+Search should support:
+
+```text
+Vendor name
+Food name
+Cuisine
+Category
+Location
+```
+
+Example:
+
+> Search "jollof"
+
+Results:
+
+```text
+Mama's Kitchen
+Jollof Rice ₦3,500
+
+Food Palace
+Party Jollof ₦5,000
+```
+
+---
+
+# 51. Homepage
+
+Recommended homepage structure:
+
+```text
+HEADER
+
+FoodPalace Logo
+Search
+Location
+Login
+Cart
+
+HERO
+
+What are you craving today?
+
+[Search food or restaurants]
+
+CATEGORIES
+
+Popular Near You
+
+Featured Vendors
+
+Popular Meals
+
+Special Offers
+
+Sponsored Vendors
+
+Recently Added
+
+Footer
+```
+
+---
+
+# 52. Vendor Portal Pages
+
+Vendor portal should include:
+
+```text
+Dashboard
+Business Profile
+Menu
+Menu Categories
+Food Items
+Orders
+Order Details
+Customers
+Reviews
+Promotions
+Advertising
+Wallet
+Transactions
+Settlements
+Analytics
+Staff
+Settings
+Support
+```
+
+---
+
+# 53. Customer Portal Pages
+
+```text
+Home
+Restaurants/Vendors
+Food Categories
+Vendor Details
+Menu
+Cart
+Checkout
+Payment
+Order Tracking
+Orders
+Order Details
+Favorites
+Addresses
+Profile
+Notifications
+Reviews
+Support
+```
+
+---
+
+# 54. Dispatcher Portal
+
+```text
+Dashboard
+Available Deliveries
+My Deliveries
+Delivery Details
+Active Delivery
+Completed Deliveries
+Earnings
+Transactions
+Profile
+Availability
+Support
+```
+
+---
+
+# 55. Admin Portal
+
+```text
+Dashboard
+Users
+Customers
+Vendors
+Vendor Applications
+Menus
+Orders
+Payments
+Refunds
+Dispatchers
+Deliveries
+Commissions
+Settlements
+Advertising
+Promotions
+Reviews
+Complaints
+Notifications
+Reports
+Settings
+Audit Logs
+System Configuration
+```
+
+---
+
+# 56. Database — Core Entities
+
+A recommended initial database model:
+
+```text
+users
+roles
+permissions
+user_roles
+
+customer_profiles
+
+vendors
+vendor_profiles
+vendor_documents
+vendor_staff
+
+vendor_categories
+categories
+
+menus
+menu_categories
+menu_items
+menu_item_variants
+modifier_groups
+modifiers
+menu_item_modifiers
+
+addresses
+
+carts
+cart_items
+
+orders
+order_items
+order_item_modifiers
+
+order_status_history
+
+payments
+payment_transactions
+payment_webhooks
+
+delivery_zones
+delivery_fees
+
+dispatchers
+dispatcher_profiles
+deliveries
+delivery_status_history
+delivery_confirmations
+
+reviews
+
+favorites
+
+promotions
+advertising_campaigns
+advertising_placements
+
+coupons
+
+vendor_wallets
+wallet_transactions
+settlements
+
+refunds
+
+notifications
+
+support_tickets
+
+audit_logs
+```
+
+---
+
+# 57. Recommended Relationship Model
+
+```text
+User
+ ├── Customer Profile
+ ├── Vendor Staff
+ └── Dispatcher Profile
+
+Vendor
+ ├── Vendor Profile
+ ├── Menus
+ │    └── Menu Categories
+ │         └── Menu Items
+ │              ├── Variants
+ │              └── Modifiers
+ ├── Orders
+ ├── Reviews
+ ├── Promotions
+ └── Wallet
+
+Customer
+ ├── Addresses
+ ├── Cart
+ ├── Orders
+ ├── Reviews
+ └── Favorites
+
+Order
+ ├── Order Items
+ ├── Payment
+ ├── Status History
+ └── Delivery
+       ├── Dispatcher
+       ├── Status History
+       └── Confirmation
+```
+
+---
+
+# 58. API Architecture
+
+Laravel should expose versioned APIs.
+
+Example:
+
+```text
+/api/v1/
+```
+
+Authentication:
+
+```text
+/api/v1/auth/register
+/api/v1/auth/login
+/api/v1/auth/logout
+/api/v1/auth/me
+```
+
+Customer:
+
+```text
+/api/v1/vendors
+/api/v1/vendors/{vendor}
+/api/v1/vendors/{vendor}/menu
+/api/v1/categories
+/api/v1/cart
+/api/v1/orders
+/api/v1/orders/{order}
+/api/v1/orders/{order}/cancel
+/api/v1/orders/{order}/confirm-delivery
+```
+
+Payments:
+
+```text
+/api/v1/payments/initialize
+/api/v1/payments/verify
+/api/v1/payments/webhook/paystack
+/api/v1/payments/webhook/flutterwave
+```
+
+Vendor:
+
+```text
+/api/v1/vendor/profile
+/api/v1/vendor/menu
+/api/v1/vendor/menu-items
+/api/v1/vendor/orders
+/api/v1/vendor/orders/{order}/accept
+/api/v1/vendor/orders/{order}/reject
+/api/v1/vendor/orders/{order}/preparing
+/api/v1/vendor/orders/{order}/ready
+```
+
+Dispatcher:
+
+```text
+/api/v1/dispatcher/deliveries
+/api/v1/dispatcher/deliveries/{delivery}/accept
+/api/v1/dispatcher/deliveries/{delivery}/pickup
+/api/v1/dispatcher/deliveries/{delivery}/deliver
+```
+
+Admin:
+
+```text
+/api/v1/admin/users
+/api/v1/admin/vendors
+/api/v1/admin/orders
+/api/v1/admin/payments
+/api/v1/admin/deliveries
+/api/v1/admin/reports
+```
+
+---
+
+# 59. API Response Standard
+
+All APIs should follow a consistent contract.
+
+Success:
+
+```json
+{
+    "success": true,
+    "message": "Order retrieved successfully.",
+    "data": {},
+    "meta": {}
+}
+```
+
+Error:
+
+```json
+{
+    "success": false,
+    "message": "Unable to process order.",
+    "errors": {
+        "field": [
+            "The selected item is unavailable."
+        ]
+    }
+}
+```
+
+This is particularly important because the Next.js frontend and Laravel backend are being developed separately.
+
+---
+
+# 60. Authentication & Authorization
+
+Use:
+
+**Laravel Sanctum**
+
+Recommended:
+
+```text
+Authentication
+       ↓
+User
+       ↓
+Role
+       ↓
+Permissions
+       ↓
+Policy
+       ↓
+Controller/Service
+```
+
+Recommended package:
+
+**Spatie Laravel Permission**
+
+Roles should not be hardcoded throughout controllers.
+
+---
+
+# 61. Security Requirements
+
+The application must implement:
+
+* HTTPS
+* Password hashing
+* CSRF protection where applicable
+* API authentication
+* Rate limiting
+* Input validation
+* Authorization policies
+* SQL injection prevention
+* XSS protection
+* Secure file uploads
+* Payment webhook signature verification
+* Secure environment variables
+* Audit logging
+* Authentication throttling
+* Session/token security
+* CORS restrictions
+* Sensitive-data protection
+
+---
+
+# 62. Payment Security
+
+Never trust:
+
+```text
+Frontend payment amount
+Frontend order status
+Frontend payment success
+```
+
+Laravel must independently:
+
+1. Retrieve order.
+2. Calculate total.
+3. Initialize transaction.
+4. Verify transaction.
+5. Process webhook.
+6. Confirm payment amount.
+7. Confirm currency.
+8. Confirm transaction reference.
+9. Update payment.
+10. Update order.
+
+---
+
+# 63. Order Integrity
+
+Once an order has been placed, the system should preserve the actual purchase snapshot.
+
+For example, if:
+
+```text
+Jollof Rice
+₦3,000
+```
+
+later changes to:
+
+```text
+₦4,000
+```
+
+the existing order should still show:
+
+```text
+Jollof Rice
+₦3,000
+```
+
+Therefore `order_items` should store snapshots of:
+
+* Item name
+* Unit price
+* Quantity
+* Variant
+* Modifier
+* Discount
+* Tax
+* Total
+
+---
+
+# 64. Audit Logging
+
+Important activities should be logged.
+
+Examples:
+
+```text
+Vendor approved
+Vendor suspended
+Order cancelled
+Payment verified
+Refund processed
+Commission changed
+Menu price changed
+Dispatcher assigned
+Delivery confirmed
+Admin login
+```
+
+Audit record:
+
+```text
+User
+Action
+Entity
+Entity ID
+Old Values
+New Values
+IP Address
+User Agent
+Timestamp
+```
+
+---
+
+# 65. Non-Functional Requirements
+
+## Performance
+
+Target:
+
+* API response: generally <500ms under normal load
+* Page loads optimized through Next.js
+* Images optimized
+* Database queries indexed
+* Pagination mandatory for large datasets
+
+---
+
+# 66. Scalability
+
+The architecture should support:
+
+```text
+100 vendors
+       ↓
+1,000 vendors
+       ↓
+10,000+ vendors
+```
+
+without major architectural redesign.
+
+Use:
+
+* Queues
+* Caching
+* Database indexing
+* Pagination
+* Stateless API
+* CDN
+* optimized queries
+
+---
+
+# 67. Availability
+
+Target:
+
+**99.5%+ application availability initially**
+
+Production services:
+
+```text
+Vercel
+Next.js
+
+Railway
+Laravel
+
+Supabase
+PostgreSQL
+```
+
+Each should have appropriate production environment configuration.
+
+---
+
+# 68. Error Monitoring
+
+Recommended:
+
+**Bugsnag or Sentry**
+
+Monitor:
+
+* Backend exceptions
+* Frontend exceptions
+* API failures
+* payment failures
+* queue failures
+* performance problems
+
+---
+
+# 69. Logging
+
+Laravel logs should distinguish:
+
+```text
+application
+payment
+authentication
+orders
+delivery
+webhooks
+security
+```
+
+Sensitive data must not be logged.
+
+---
+
+# 70. Background Jobs
+
+Laravel queues should handle:
+
+* Emails
+* SMS
+* Notifications
+* Payment processing tasks
+* Webhook processing
+* Order reminders
+* Vendor timeout processing
+* Settlement processing
+* Advertising analytics
+* Reports
+
+---
+
+# 71. Scheduled Tasks
+
+Laravel Scheduler can handle:
+
+```text
+Vendor timeout detection
+Expired promotions
+Expired coupons
+Settlement processing
+Abandoned carts
+Expired OTPs
+Daily reports
+Database maintenance
+```
+
+---
+
+# 72. File Management
+
+Vendor files:
+
+```text
+vendor/
+   logos/
+   covers/
+   documents/
+   menu-items/
+```
+
+Customer:
+
+```text
+users/
+   profile/
+```
+
+Delivery:
+
+```text
+deliveries/
+   evidence/
+```
+
+Files should not be stored directly on Railway's local filesystem for persistent production storage.
+
+Use:
+
+**Supabase Storage or S3-compatible storage.**
+
+---
+
+# 73. Environment Architecture
+
+## Development
+
+```text
+Next.js
+localhost
+
+Laravel
+localhost
+
+PostgreSQL
+local Docker/PostgreSQL
+```
+
+## Staging
+
+```text
+Next.js
+Vercel Preview/Staging
+
+Laravel
+Railway Staging
+
+PostgreSQL
+Supabase Staging
+```
+
+## Production
+
+```text
+Next.js
+Vercel Production
+
+Laravel
+Railway Production
+
+PostgreSQL
+Supabase Production
+```
+
+---
+
+# 74. Deployment Architecture
+
+```text
+                   INTERNET
+                       │
+                       ▼
+              ┌────────────────┐
+              │     Vercel     │
+              │    Next.js     │
+              └───────┬────────┘
+                      │
+                  HTTPS/API
+                      │
+                      ▼
+              ┌────────────────┐
+              │    Railway     │
+              │    Laravel     │
+              └───────┬────────┘
+                      │
+               PostgreSQL SSL
+                      │
+                      ▼
+              ┌────────────────┐
+              │    Supabase    │
+              │  PostgreSQL    │
+              └────────────────┘
+```
+
+External:
+
+```text
+Laravel
+ ├── Paystack
+ ├── Flutterwave
+ ├── Email Provider
+ ├── SMS Provider
+ ├── Storage
+ └── Maps API
+```
+
+---
+
+# 75. CI/CD
+
+GitHub should be used as the central repository.
+
+Recommended structure:
+
+```text
+foodpalace/
+    foodpalace-frontend/
+    foodpalace-backend/
+```
+
+or:
+
+```text
+foodpalace/
+    frontend/
+    backend/
+```
+
+CI should perform:
+
+### Laravel
+
+```text
+composer install
+php artisan test
+PHPStan/Psalm
+Pint
+```
+
+### Next.js
+
+```text
+npm install
+npm run lint
+npm run type-check
+npm run build
+```
+
+---
+
+# 76. Testing Requirements
+
+## Backend
+
+* Unit tests
+* Feature tests
+* API tests
+* Authentication tests
+* Authorization tests
+* Payment tests
+* Order workflow tests
+* Delivery workflow tests
+* Webhook tests
+
+## Frontend
+
+* Component tests
+* Form validation tests
+* API integration tests
+* Checkout tests
+* Order tracking tests
+
+## End-to-End
+
+Critical flow:
+
+```text
+Register
+ ↓
+Browse Vendor
+ ↓
+Select Food
+ ↓
+Cart
+ ↓
+Checkout
+ ↓
+Payment
+ ↓
+Vendor Accept
+ ↓
+Prepare
+ ↓
+Dispatcher
+ ↓
+Pickup
+ ↓
+Delivery
+ ↓
+Customer Confirmation
+ ↓
+Complete
+```
+
+This must have an automated E2E test.
+
+---
+
+# 77. MVP Scope
+
+The first release should focus on the core transaction.
+
+## Customer
+
+* Registration/login
+* Vendor discovery
+* Search
+* Vendor profile
+* Menu
+* Cart
+* Checkout
+* Payment
+* Order tracking
+* Order history
+* Delivery confirmation
+* Reviews
+
+## Vendor
+
+* Registration
+* Approval
+* Profile
+* Menu management
+* Order management
+* Order preparation
+* Basic analytics
+
+## Dispatcher
+
+* Registration/onboarding
+* Availability
+* Assigned deliveries
+* Pickup confirmation
+* Delivery confirmation
+* Delivery history
+
+## Admin
+
+* Dashboard
+* Vendor approval
+* User management
+* Order management
+* Payment monitoring
+* Dispatcher management
+* Commission configuration
+* Reports
+* Audit logs
+
+---
+
+# 78. Phase 2 Features
+
+After MVP:
+
+* Vendor advertising
+* Coupons
+* Promotions
+* Favorites
+* Advanced analytics
+* Automated dispatch assignment
+* Live delivery tracking
+* Push notifications
+* Customer loyalty
+* Vendor subscriptions
+* Referral system
+* Wallet
+* Scheduled orders
+* Multiple payment methods
+* Advanced search
+
+---
+
+# 79. Phase 3
+
+Potential marketplace expansion:
+
+* Grocery
+* Pharmacy
+* Bakery
+* Drinks
+* Catering
+* Corporate food ordering
+* Subscription meals
+* Meal plans
+* Bulk orders
+* Corporate accounts
+
+---
+
+# 80. Revenue Model
+
+FoodPalace can generate revenue through several channels.
+
+### 1. Vendor Commission
+
+Example:
+
+```text
+5–20% per order
+```
+
+### 2. Delivery Fee
+
+FoodPalace can retain part of the delivery fee.
+
+### 3. Vendor Advertising
+
+Vendors pay for:
+
+* Featured placement
+* Sponsored listings
+* Banner ads
+
+### 4. Vendor Subscription
+
+Example:
+
+```text
+Free
+Basic
+Professional
+Premium
+```
+
+### 5. Promotional Campaigns
+
+Vendors pay to promote:
+
+* Meals
+* Discounts
+* New outlets
+
+---
+
+# 81. Key Business Rules
+
+### Rule 1
+
+Only approved vendors can publish menus and receive orders.
+
+### Rule 2
+
+Only active menu items can be ordered.
+
+### Rule 3
+
+Prices are always calculated server-side.
+
+### Rule 4
+
+Only successful payments can move an order to the paid state.
+
+### Rule 5
+
+Payment confirmation must come from verified gateway communication.
+
+### Rule 6
+
+Only vendors can accept/reject their orders.
+
+### Rule 7
+
+Only assigned dispatchers can update their deliveries.
+
+### Rule 8
+
+Pickup must occur before delivery confirmation.
+
+### Rule 9
+
+Delivery OTP can only be used once.
+
+### Rule 10
+
+Only completed orders can generate reviews.
+
+### Rule 11
+
+Customers cannot modify an order after vendor preparation has started unless the business rules explicitly allow it.
+
+### Rule 12
+
+Every important order state transition must be recorded.
+
+---
+
+# 82. Software Requirements Specification — Functional Requirements
+
+## FR-001 Authentication
+
+The system shall allow users to create accounts and authenticate securely.
+
+## FR-002 Vendor Registration
+
+The system shall allow food businesses to register as vendors.
+
+## FR-003 Vendor Approval
+
+The system shall allow administrators to approve/reject vendor applications.
+
+## FR-004 Menu Management
+
+The system shall allow approved vendors to create and manage menus.
+
+## FR-005 Food Discovery
+
+The system shall allow customers to search and discover vendors and food.
+
+## FR-006 Cart
+
+The system shall allow customers to create and modify shopping carts.
+
+## FR-007 Checkout
+
+The system shall allow customers to provide delivery information and review order totals.
+
+## FR-008 Payment
+
+The system shall integrate with a supported payment gateway.
+
+## FR-009 Payment Verification
+
+The backend shall independently verify payments.
+
+## FR-010 Order Management
+
+The system shall manage the complete order lifecycle.
+
+## FR-011 Dispatch
+
+The system shall assign orders to dispatch personnel.
+
+## FR-012 Pickup
+
+The system shall allow dispatchers to confirm order pickup.
+
+## FR-013 Delivery
+
+The system shall allow dispatchers to confirm delivery.
+
+## FR-014 Customer Confirmation
+
+The system shall allow customers to confirm receipt.
+
+## FR-015 Reviews
+
+The system shall allow customers to review completed orders.
+
+## FR-016 Notifications
+
+The system shall notify relevant users of important events.
+
+## FR-017 Vendor Advertising
+
+The system shall support vendor promotional campaigns.
+
+## FR-018 Commission
+
+The system shall calculate FoodPalace commissions.
+
+## FR-019 Settlements
+
+The system shall maintain vendor financial balances and settlements.
+
+## FR-020 Reporting
+
+The system shall provide operational and financial reports.
+
+---
+
+# 83. Software Requirements — User Experience
+
+The application must be:
+
+* Mobile responsive
+* Desktop responsive
+* Accessible
+* Fast
+* Simple to navigate
+* Consistent
+* Touch-friendly
+* optimized for Nigerian mobile users
+
+Because many users will access FoodPalace using mobile devices, **mobile-first design should be mandatory.**
+
+---
+
+# 84. Nigerian Market Requirements
+
+Since the initial market is Nigeria, the system should support:
+
+```text
+Currency: NGN
+Currency symbol: ₦
+
+Phone format:
++234
+
+States
+Local Government Areas
+Cities
+```
+
+Payment integration should prioritize:
+
+* Paystack
+* Flutterwave
+
+Delivery pricing should support Nigerian market conditions.
+
+---
+
+# 85. Important Localization
+
+Address structure should support:
+
+```text
+State
+LGA
+City/Town
+Area
+Street
+House Number
+Landmark
+Latitude
+Longitude
+Delivery Instructions
+```
+
+Do not depend exclusively on formal street addresses because many Nigerian delivery locations are identified using landmarks.
+
+---
+
+# 86. SOW — Statement of Work
+
+## Phase 1 — Discovery & Planning
+
+### Deliverables
+
+* Final PRD
+* Final SRS
+* System architecture
+* Database ERD
+* API specification
+* User roles
+* Permission matrix
+* UI/UX specification
+* Deployment architecture
+
+---
+
+# 87. Phase 2 — Project Setup
+
+### Backend
+
+* Laravel installation
+* PostgreSQL connection
+* Sanctum
+* RBAC
+* API versioning
+* Environment configuration
+* Testing infrastructure
+* Logging
+* Error monitoring
+
+### Frontend
+
+* Next.js
+* TypeScript
+* UI framework
+* API client
+* authentication state
+* route protection
+* environment configuration
+
+---
+
+# 88. Phase 3 — Authentication
+
+Deliver:
+
+* Registration
+* Login
+* Logout
+* Email verification
+* Password reset
+* Profile
+* Role permissions
+
+---
+
+# 89. Phase 4 — Vendor Marketplace
+
+Deliver:
+
+* Vendor registration
+* Vendor approval
+* Vendor profile
+* Categories
+* Vendor discovery
+* Search
+* Vendor detail
+* Menu display
+
+---
+
+# 90. Phase 5 — Menu Management
+
+Deliver:
+
+* Menu categories
+* Menu items
+* Variants
+* Modifiers
+* Images
+* Availability
+* Pricing
+
+---
+
+# 91. Phase 6 — Ordering
+
+Deliver:
+
+* Cart
+* Cart validation
+* Checkout
+* Address management
+* Order creation
+* Order history
+* Order state machine
+
+---
+
+# 92. Phase 7 — Payments
+
+Deliver:
+
+* Paystack integration
+* Flutterwave integration if required
+* Payment initialization
+* Payment verification
+* Webhooks
+* Transaction records
+* Payment failure handling
+* Refund architecture
+
+---
+
+# 93. Phase 8 — Vendor Order Management
+
+Deliver:
+
+* New orders
+* Accept
+* Reject
+* Preparing
+* Ready for pickup
+* Order history
+
+---
+
+# 94. Phase 9 — Dispatch
+
+Deliver:
+
+* Dispatcher accounts
+* Availability
+* Assignment
+* Delivery dashboard
+* Pickup confirmation
+* Delivery confirmation
+* OTP verification
+* Delivery history
+
+---
+
+# 95. Phase 10 — Notifications
+
+Deliver:
+
+* In-app notifications
+* Email
+* SMS architecture
+* Queue processing
+* Notification templates
+
+---
+
+# 96. Phase 11 — Reviews & Ratings
+
+Deliver:
+
+* Vendor reviews
+* Delivery reviews
+* Rating calculation
+* Review moderation
+
+---
+
+# 97. Phase 12 — Administration
+
+Deliver:
+
+* Admin dashboard
+* User management
+* Vendor management
+* Order management
+* Payment management
+* Delivery management
+* Commission
+* Reports
+* Audit logs
+* Settings
+
+---
+
+# 98. Phase 13 — Advertising
+
+Deliver:
+
+* Vendor advertising
+* Campaign creation
+* Sponsored vendors
+* Featured vendors
+* Campaign scheduling
+* Campaign analytics
+
+---
+
+# 99. Phase 14 — Testing
+
+Perform:
+
+```text
+Unit Testing
+Feature Testing
+API Testing
+Security Testing
+Performance Testing
+Payment Testing
+Webhook Testing
+E2E Testing
+Cross-browser Testing
+Mobile Testing
+```
+
+---
+
+# 100. Phase 15 — Deployment
+
+## Vercel
+
+Deploy:
+
+```text
+Next.js Production
+```
+
+## Railway
+
+Deploy:
+
+```text
+Laravel API
+Queue Worker
+Scheduler
+```
+
+## Supabase
+
+Configure:
+
+```text
+PostgreSQL
+Storage
+Backups
+Database users
+```
+
+---
+
+# 101. Production Deployment Checklist
+
+### Backend
+
+* [ ] Production `.env`
+* [ ] APP_KEY
+* [ ] APP_ENV=production
+* [ ] APP_DEBUG=false
+* [ ] Database configured
+* [ ] Sanctum configured
+* [ ] CORS configured
+* [ ] Queue configured
+* [ ] Scheduler configured
+* [ ] Storage configured
+* [ ] Payment keys configured
+* [ ] Webhooks configured
+* [ ] Error monitoring configured
+
+### Frontend
+
+* [ ] Production API URL
+* [ ] Environment variables
+* [ ] Authentication
+* [ ] Payment redirect
+* [ ] Image configuration
+* [ ] SEO
+* [ ] Analytics
+* [ ] Error tracking
+
+### Supabase
+
+* [ ] Production database
+* [ ] Backups
+* [ ] Database security
+* [ ] Storage buckets
+* [ ] Database indexes
+
+---
+
+# 102. Definition of Done
+
+A feature is considered complete only when:
+
+1. Database structure is implemented.
+2. Laravel models are implemented.
+3. Migrations are tested.
+4. Form Requests are implemented.
+5. Authorization is implemented.
+6. Service/business logic is implemented.
+7. API endpoint is implemented.
+8. API response follows the standard contract.
+9. Frontend interface is implemented.
+10. Loading states are implemented.
+11. Error states are implemented.
+12. Validation is implemented.
+13. Mobile responsiveness is verified.
+14. Automated tests exist.
+15. Security requirements are satisfied.
+16. Audit logging exists where applicable.
+17. Documentation is updated.
+
+---
+
+# 103. Recommended Development Architecture
+
+For Laravel, avoid putting business logic directly into controllers.
+
+Recommended:
+
+```text
+app/
+├── Actions/
+├── DTOs/
+├── Enums/
+├── Events/
+├── Exceptions/
+├── Http/
+│   ├── Controllers/
+│   ├── Requests/
+│   └── Resources/
+├── Jobs/
+├── Listeners/
+├── Models/
+├── Notifications/
+├── Policies/
+├── Services/
+└── Support/
+```
+
+Example:
+
+```text
+OrderController
+      ↓
+CreateOrderService
+      ↓
+OrderValidator
+      ↓
+Order Pricing Service
+      ↓
+Order Repository/Model
+      ↓
+Payment Service
+      ↓
+Event
+      ↓
+Notifications
+```
+
+---
+
+# 104. Frontend Architecture
+
+Recommended:
+
+```text
+src/
+├── app/
+├── components/
+├── features/
+│   ├── auth/
+│   ├── vendors/
+│   ├── menu/
+│   ├── cart/
+│   ├── checkout/
+│   ├── orders/
+│   ├── payments/
+│   ├── delivery/
+│   └── reviews/
+├── hooks/
+├── lib/
+├── services/
+├── types/
+├── schemas/
+└── store/
+```
+
+This prevents the Next.js application from becoming a collection of unstructured components.
+
+---
+
+# 105. Critical Order Architecture
+
+One of the most important parts of FoodPalace should be a formal **Order State Machine**.
+
+Do not allow arbitrary status changes such as:
+
+```text
+Controller:
+$order->status = 'delivered';
+```
+
+Instead:
+
+```text
+Order
+ ↓
+Transition
+ ↓
+Validate allowed transition
+ ↓
+Record history
+ ↓
+Fire event
+ ↓
+Notify users
+```
+
+For example:
+
+```text
+READY_FOR_PICKUP
+       ↓
+DISPATCH_ASSIGNED
+       ↓
+PICKED_UP
+       ↓
+OUT_FOR_DELIVERY
+       ↓
+DELIVERED
+       ↓
+CUSTOMER_CONFIRMED
+       ↓
+COMPLETED
+```
+
+This will make the application substantially more reliable.
+
+---
+
+# 106. Core Success Metrics
+
+FoodPalace should measure:
+
+### Customer
+
+* Registration rate
+* First-order conversion
+* Repeat order rate
+* Average order value
+* Cart abandonment
+* Customer retention
+
+### Vendor
+
+* Active vendors
+* Vendor activation rate
+* Orders per vendor
+* Vendor revenue
+* Vendor retention
+
+### Delivery
+
+* Average preparation time
+* Pickup time
+* Delivery time
+* Failed delivery rate
+* Delivery completion rate
+
+### Platform
+
+* Gross Merchandise Value
+* Platform revenue
+* Commission revenue
+* Advertising revenue
+* Number of orders
+* Average order value
+
+---
+
+# 107. Primary MVP Success Criterion
+
+The MVP should prove that FoodPalace can reliably execute this complete transaction:
+
+```text
+CUSTOMER
+   │
+   ▼
+Discover Vendor
+   │
+   ▼
+Browse Menu
+   │
+   ▼
+Add Food
+   │
+   ▼
+Checkout
+   │
+   ▼
+Pay
+   │
+   ▼
+VENDOR
+   │
+   ▼
+Accept
+   │
+   ▼
+Prepare
+   │
+   ▼
+Ready
+   │
+   ▼
+DISPATCH
+   │
+   ▼
+Pickup
+   │
+   ▼
+Deliver
+   │
+   ▼
+CUSTOMER
+   │
+   ▼
+Confirm Receipt
+   │
+   ▼
+COMPLETED
+```
+
+**That transaction is the heart of FoodPalace.**
+
+---
+
+# 108. Recommended MVP Priority
+
+I would implement FoodPalace in this order:
+
+| Priority | Module                       |
+| -------: | ---------------------------- |
+|        1 | Architecture & project setup |
+|        2 | Authentication/RBAC          |
+|        3 | Customer management          |
+|        4 | Vendor onboarding            |
+|        5 | Vendor approval              |
+|        6 | Menu management              |
+|        7 | Vendor discovery             |
+|        8 | Cart                         |
+|        9 | Checkout                     |
+|       10 | Payment                      |
+|       11 | Order management             |
+|       12 | Vendor order processing      |
+|       13 | Dispatcher                   |
+|       14 | Delivery confirmation        |
+|       15 | Notifications                |
+|       16 | Reviews                      |
+|       17 | Admin dashboard              |
+|       18 | Commission                   |
+|       19 | Reporting                    |
+|       20 | Advertising                  |
+
+---
+
+## Final Product Architecture
+
+The resulting FoodPalace platform should essentially be a **three-sided marketplace**:
+
+```text
+                    FOODPALACE
+                         │
+        ┌────────────────┼────────────────┐
+        │                      │                      │
+        ▼                      ▼                 ▼
+   CUSTOMER           VENDOR          DISPATCHER
+        │                │                │
+        │                │                │
+     Browse          Publish Menu       Receive Job
+        │                │                │
+     Order            Receive Order      Pickup
+        │                │                │
+     Payment          Prepare Food       Deliver
+        │                │                │
+        └────────────────┼────────────────┘
+                         │
+                         ▼
+                       ADMIN
+                         │
+             ┌───────────┼────────────┐
+             ▼           ▼            ▼
+          Payments     Vendors      Operations
+             │           │            │
+             └───────────┼────────────┘
+                         ▼
+                     Analytics
+```
+
+The most important architectural decision is to treat **FoodPalace as an API-first multi-vendor marketplace**, rather than simply a restaurant website. Laravel should own **authentication, authorization, pricing, order state, payment verification, commissions, delivery state and business rules**, while Next.js should primarily own the presentation and user interaction layer.
+
+For the first production version, I would also **avoid overbuilding live GPS tracking, automated dispatch optimization, multi-vendor carts, complex subscriptions and sophisticated advertising bidding**. Build the transaction engine first, validate the business model, and then layer those capabilities on top.

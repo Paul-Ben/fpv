@@ -1,0 +1,2237 @@
+**FoodPalace**, I recommend implementing the system as a sequence of independently testable modules rather than trying to build the entire application at once.
+
+The key principle should be:
+
+> **Foundation → Identity → Marketplace → Ordering → Payments → Fulfillment → Administration → Revenue → Hardening → Production**
+
+This structure also works very well if you are using AI coding agents because each module can have a clearly defined scope, dependencies, database changes, API contract, frontend screens, tests, and acceptance criteria.
+
+# FoodPalace — Modular Implementation Roadmap
+
+## 0. Target Architecture
+
+```text
+                         FOODPALACE
+                             │
+              ┌──────────────┴──────────────┐
+              │                             │
+        Next.js Frontend              Laravel Backend
+           Vercel                       Railway
+              │                             │
+              │       REST API              │
+              └──────────────┬──────────────┘
+                             │
+                         PostgreSQL
+                          Supabase
+                             │
+              ┌──────────────┼──────────────┐
+              │              │              │
+           Paystack       Flutterwave     Storage
+```
+
+### Repositories
+
+```text
+FoodPalace/
+│
+├── foodpalace-frontend
+├── foodpalace-backend
+├── foodpalace-api-contract
+└── foodpalace-docs              # optional initially
+```
+
+---
+
+# PHASE 0 — Project Governance & Repository Setup
+
+## Module 0.1 — GitHub Organization
+
+Create:
+
+```text
+FoodPalace
+```
+
+Repositories:
+
+```text
+foodpalace-frontend
+foodpalace-backend
+foodpalace-api-contract
+```
+
+### Backend repository
+
+```text
+foodpalace-backend/
+├── app/
+├── bootstrap/
+├── config/
+├── database/
+├── public/
+├── resources/
+├── routes/
+├── storage/
+├── tests/
+├── .env.example
+├── composer.json
+└── README.md
+```
+
+### Frontend
+
+```text
+foodpalace-frontend/
+├── src/
+├── public/
+├── tests/
+├── .env.example
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+### API Contract
+
+```text
+foodpalace-api-contract/
+├── openapi.yaml
+├── schemas/
+├── examples/
+└── README.md
+```
+
+---
+
+# Module 0.2 — Git Strategy
+
+Use:
+
+```text
+main
+develop
+feature/*
+bugfix/*
+hotfix/*
+```
+
+Example:
+
+```text
+feature/authentication
+feature/vendor-management
+feature/menu-management
+feature/order-management
+feature/payment-integration
+feature/delivery
+```
+
+Protect:
+
+```text
+main
+```
+
+Require:
+
+* Pull requests
+* CI checks
+* Tests
+* Code review
+
+---
+
+# Module 0.3 — Project Documentation
+
+Create a project documentation structure:
+
+```text
+docs/
+├── architecture/
+├── database/
+├── api/
+├── frontend/
+├── backend/
+├── deployment/
+├── security/
+├── testing/
+└── business-rules/
+```
+
+Important documents:
+
+```text
+PRD.md
+SRS.md
+ARCHITECTURE.md
+DATABASE.md
+API-STANDARDS.md
+AUTHORIZATION.md
+ORDER-LIFECYCLE.md
+PAYMENT-FLOW.md
+DEPLOYMENT.md
+```
+
+---
+
+# PHASE 1 — Development Environment
+
+## Module 1.1 — Laravel Backend
+
+Create Laravel project.
+
+Configure:
+
+```text
+Laravel
+PHP
+PostgreSQL
+Sanctum
+Spatie Permission
+Pest/PHPUnit
+Laravel Pint
+PHPStan
+```
+
+Establish:
+
+```text
+app/
+├── Actions/
+├── DTOs/
+├── Enums/
+├── Events/
+├── Exceptions/
+├── Http/
+│   ├── Controllers/
+│   ├── Requests/
+│   └── Resources/
+├── Jobs/
+├── Listeners/
+├── Models/
+├── Notifications/
+├── Policies/
+├── Services/
+└── Support/
+```
+
+---
+
+# Module 1.2 — Next.js Frontend
+
+Create:
+
+```text
+Next.js
+TypeScript
+App Router
+```
+
+Recommended:
+
+```text
+src/
+├── app/
+├── components/
+├── features/
+├── hooks/
+├── lib/
+├── services/
+├── schemas/
+├── types/
+└── store/
+```
+
+Set up:
+
+* ESLint
+* Prettier
+* TypeScript strict mode
+* API client
+* React Hook Form
+* Zod
+* TanStack Query
+* state management where required
+
+---
+
+# Module 1.3 — Local PostgreSQL
+
+For development, use PostgreSQL locally or Docker.
+
+```text
+Laravel
+   ↓
+Local PostgreSQL
+```
+
+Do **not** develop directly against your production Supabase database.
+
+---
+
+# Module 1.4 — Environment Management
+
+Backend:
+
+```env
+APP_ENV=
+APP_KEY=
+
+DB_CONNECTION=
+DB_HOST=
+DB_PORT=
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+
+PAYSTACK_SECRET_KEY=
+PAYSTACK_PUBLIC_KEY=
+
+FLUTTERWAVE_SECRET_KEY=
+
+FRONTEND_URL=
+```
+
+Frontend:
+
+```env
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_PAYSTACK_KEY=
+NEXT_PUBLIC_APP_URL=
+```
+
+Never commit `.env`.
+
+---
+
+# PHASE 2 — Application Foundation
+
+## Module 2.1 — Database Foundation
+
+Establish:
+
+* UUID strategy
+* timestamps
+* soft deletes
+* foreign keys
+* indexes
+* naming conventions
+* database constraints
+
+Create base migrations.
+
+---
+
+# Module 2.2 — API Foundation
+
+Establish:
+
+```text
+/api/v1/
+```
+
+Standard response:
+
+```json
+{
+    "success": true,
+    "message": "Operation successful",
+    "data": {},
+    "meta": {}
+}
+```
+
+Error:
+
+```json
+{
+    "success": false,
+    "message": "Validation failed",
+    "errors": {}
+}
+```
+
+Implement:
+
+* API Resources
+* Exception handling
+* Pagination
+* Filtering
+* Sorting
+* API authentication middleware
+* Rate limiting
+
+---
+
+# Module 2.3 — Frontend API Layer
+
+Create:
+
+```text
+services/
+├── api-client.ts
+├── auth.service.ts
+├── vendor.service.ts
+├── menu.service.ts
+├── cart.service.ts
+├── order.service.ts
+└── payment.service.ts
+```
+
+Do not scatter raw API calls throughout React components.
+
+---
+
+# PHASE 3 — Authentication & RBAC
+
+This should be the first major functional module.
+
+## Module 3.1 — Users
+
+Create:
+
+```text
+users
+```
+
+Support:
+
+```text
+Customer
+Vendor
+Vendor Staff
+Dispatcher
+Dispatcher Manager
+Support Agent
+Admin
+Super Admin
+```
+
+---
+
+# Module 3.2 — Authentication
+
+Implement:
+
+```text
+Register
+Login
+Logout
+Current User
+Email Verification
+Forgot Password
+Reset Password
+```
+
+---
+
+# Module 3.3 — RBAC
+
+Use:
+
+**Spatie Laravel Permission**
+
+Create:
+
+```text
+roles
+permissions
+model_has_roles
+role_has_permissions
+```
+
+Example:
+
+```text
+Super Admin
+Admin
+Vendor
+Vendor Staff
+Customer
+Dispatcher
+Dispatcher Manager
+Support Agent
+```
+
+---
+
+# Module 3.4 — Authorization
+
+Implement:
+
+* Policies
+* Gates
+* Middleware
+* Permission checks
+
+Example:
+
+```text
+vendor.orders.view
+vendor.orders.accept
+vendor.menu.manage
+dispatcher.delivery.update
+admin.vendor.approve
+```
+
+---
+
+# Module 3.5 — Frontend Authentication
+
+Build:
+
+```text
+/login
+/register
+/forgot-password
+/reset-password
+/verify-email
+```
+
+Protected areas:
+
+```text
+/account
+/vendor
+/dispatcher
+/admin
+```
+
+### Acceptance Criteria
+
+A user can register, log in and only access resources permitted by their role.
+
+---
+
+# PHASE 4 — Customer Module
+
+## Module 4.1 — Customer Profile
+
+Build:
+
+```text
+Customer Profile
+Customer Settings
+Profile Image
+Phone
+Email
+```
+
+---
+
+# Module 4.2 — Address Management
+
+Database:
+
+```text
+addresses
+```
+
+Support:
+
+```text
+Home
+Office
+School
+Other
+```
+
+Fields:
+
+```text
+state
+lga
+city
+area
+street
+house_number
+landmark
+latitude
+longitude
+delivery_instructions
+```
+
+---
+
+# Module 4.3 — Customer Dashboard
+
+Build:
+
+```text
+/dashboard
+/orders
+/favorites
+/addresses
+/profile
+/notifications
+```
+
+---
+
+# PHASE 5 — Vendor Onboarding
+
+This begins the marketplace.
+
+## Module 5.1 — Vendor Registration
+
+Create:
+
+```text
+vendors
+vendor_profiles
+vendor_documents
+```
+
+Vendor submits:
+
+```text
+Business Name
+Description
+Phone
+Email
+Address
+Category
+Cuisine
+Business Documents
+Bank Information
+```
+
+---
+
+# Module 5.2 — Vendor Application
+
+Statuses:
+
+```text
+DRAFT
+PENDING_REVIEW
+APPROVED
+REJECTED
+SUSPENDED
+INACTIVE
+```
+
+---
+
+# Module 5.3 — Admin Vendor Approval
+
+Admin interface:
+
+```text
+Vendor Applications
+
+Vendor
+Owner
+Location
+Submitted
+Status
+
+[View]
+[Approve]
+[Reject]
+```
+
+---
+
+# Module 5.4 — Vendor Public Profile
+
+Build:
+
+```text
+/vendors/{slug}
+```
+
+Display:
+
+* Logo
+* Cover
+* Description
+* Rating
+* Address
+* Opening hours
+* Delivery information
+* Menu
+
+---
+
+# PHASE 6 — Food/Menu Management
+
+## Module 6.1 — Categories
+
+Create:
+
+```text
+categories
+vendor_categories
+```
+
+Examples:
+
+```text
+African Food
+Fast Food
+Pizza
+Burger
+Chinese
+Bakery
+Drinks
+Desserts
+```
+
+---
+
+# Module 6.2 — Menu Management
+
+Create:
+
+```text
+menus
+menu_categories
+menu_items
+```
+
+Vendor can:
+
+* Create menu
+* Create category
+* Add item
+* Edit item
+* Delete item
+* Enable/disable item
+* Upload image
+
+---
+
+# Module 6.3 — Variants
+
+Create:
+
+```text
+menu_item_variants
+```
+
+Example:
+
+```text
+Small     ₦3,000
+Medium    ₦4,000
+Large     ₦5,000
+```
+
+---
+
+# Module 6.4 — Modifiers
+
+Create:
+
+```text
+modifier_groups
+modifiers
+menu_item_modifiers
+```
+
+Example:
+
+```text
+Extra Chicken
+Extra Cheese
+Plantain
+Coleslaw
+```
+
+---
+
+# Module 6.5 — Vendor Menu UI
+
+Build:
+
+```text
+/vendor/menu
+/vendor/menu/categories
+/vendor/menu/items
+/vendor/menu/items/create
+/vendor/menu/items/{id}/edit
+```
+
+---
+
+# PHASE 7 — Marketplace Discovery
+
+## Module 7.1 — Homepage
+
+Build:
+
+```text
+/
+```
+
+Sections:
+
+```text
+Hero
+Search
+Categories
+Featured Vendors
+Popular Food
+Promotions
+Sponsored Vendors
+```
+
+---
+
+# Module 7.2 — Vendor Search
+
+Support:
+
+```text
+/vendor-search?q=jollof
+```
+
+Filters:
+
+* Category
+* Cuisine
+* Rating
+* Price
+* Location
+* Open now
+
+---
+
+# Module 7.3 — Vendor Details
+
+Build:
+
+```text
+/vendors/{slug}
+```
+
+Tabs:
+
+```text
+Menu
+About
+Reviews
+```
+
+---
+
+# PHASE 8 — Cart
+
+## Module 8.1 — Cart Backend
+
+Create:
+
+```text
+carts
+cart_items
+```
+
+Implement:
+
+```text
+Add item
+Remove item
+Update quantity
+Clear cart
+```
+
+---
+
+# Module 8.2 — Cart Validation
+
+When adding an item:
+
+```text
+Is vendor active?
+Is item active?
+Is item available?
+Is price valid?
+```
+
+---
+
+# Module 8.3 — Cart Frontend
+
+Build:
+
+```text
+/cart
+```
+
+Show:
+
+```text
+Food
+Quantity
+Price
+Modifiers
+Subtotal
+Delivery
+Service fee
+Discount
+Total
+```
+
+### Critical MVP rule
+
+**One cart = one vendor.**
+
+This greatly simplifies the first release.
+
+---
+
+# PHASE 9 — Checkout
+
+## Module 9.1 — Delivery Address
+
+Customer selects:
+
+```text
+Existing Address
+```
+
+or:
+
+```text
+New Address
+```
+
+---
+
+# Module 9.2 — Order Pricing
+
+Laravel calculates:
+
+```text
+Food subtotal
++
+Modifiers
++
+Delivery fee
++
+Service fee
+-
+Discount
++
+Tax if applicable
+=
+Total
+```
+
+Never trust frontend totals.
+
+---
+
+# Module 9.3 — Checkout UI
+
+Build:
+
+```text
+/checkout
+```
+
+Sections:
+
+```text
+Delivery Address
+Order Items
+Order Notes
+Payment Method
+Pricing Summary
+Place Order
+```
+
+---
+
+# PHASE 10 — Order Engine
+
+This is the **core FoodPalace module**.
+
+## Module 10.1 — Orders Database
+
+Create:
+
+```text
+orders
+order_items
+order_item_modifiers
+order_status_history
+```
+
+---
+
+# Module 10.2 — Order State Machine
+
+Implement:
+
+```text
+PENDING_PAYMENT
+        ↓
+PAID
+        ↓
+VENDOR_PENDING
+        ↓
+ACCEPTED
+        ↓
+PREPARING
+        ↓
+READY_FOR_PICKUP
+        ↓
+DISPATCH_ASSIGNED
+        ↓
+PICKED_UP
+        ↓
+OUT_FOR_DELIVERY
+        ↓
+DELIVERED
+        ↓
+CUSTOMER_CONFIRMED
+        ↓
+COMPLETED
+```
+
+---
+
+# Module 10.3 — Order Service
+
+Create something similar to:
+
+```text
+CreateOrderService
+OrderPricingService
+OrderTransitionService
+OrderCancellationService
+```
+
+---
+
+# Module 10.4 — Order History
+
+Build:
+
+```text
+/orders
+/orders/{id}
+```
+
+---
+
+# PHASE 11 — Payment
+
+## Module 11.1 — Payment Abstraction
+
+Do not tightly couple the order system directly to Paystack.
+
+Create:
+
+```text
+PaymentService
+PaymentGatewayInterface
+```
+
+Then:
+
+```text
+PaymentGatewayInterface
+       │
+ ┌─────┴─────────┐
+ ▼               ▼
+Paystack      Flutterwave
+```
+
+This lets you add/change payment providers later.
+
+---
+
+# Module 11.2 — Payment Database
+
+Create:
+
+```text
+payments
+payment_transactions
+payment_webhooks
+refunds
+```
+
+---
+
+# Module 11.3 — Payment Initialization
+
+Flow:
+
+```text
+Checkout
+   ↓
+Create Pending Order
+   ↓
+Initialize Payment
+   ↓
+Gateway
+   ↓
+Customer Pays
+```
+
+---
+
+# Module 11.4 — Payment Verification
+
+```text
+Gateway
+   ↓
+Laravel
+   ↓
+Verify Transaction
+   ↓
+Verify Amount
+   ↓
+Verify Reference
+   ↓
+Mark Payment Successful
+   ↓
+Mark Order PAID
+```
+
+---
+
+# Module 11.5 — Webhooks
+
+Implement:
+
+```text
+/api/v1/payments/webhook/paystack
+/api/v1/payments/webhook/flutterwave
+```
+
+Must include:
+
+* Signature verification
+* Idempotency
+* Transaction verification
+* Logging
+* Failure handling
+
+---
+
+# PHASE 12 — Vendor Order Management
+
+## Module 12.1 — Vendor Order Dashboard
+
+```text
+/vendor/orders
+```
+
+Tabs:
+
+```text
+New
+Accepted
+Preparing
+Ready
+Completed
+Cancelled
+```
+
+---
+
+# Module 12.2 — Vendor Actions
+
+Vendor can:
+
+```text
+Accept
+Reject
+Start Preparing
+Mark Ready
+```
+
+---
+
+# Module 12.3 — Vendor Timeout
+
+Example:
+
+```text
+Order received
+      ↓
+5-minute response window
+      ↓
+No response
+      ↓
+Vendor timeout
+```
+
+This should be implemented using Laravel Jobs/Scheduler.
+
+---
+
+# PHASE 13 — Dispatch Management
+
+## Module 13.1 — Dispatcher Accounts
+
+Create:
+
+```text
+dispatchers
+dispatcher_profiles
+```
+
+---
+
+# Module 13.2 — Delivery Database
+
+Create:
+
+```text
+deliveries
+delivery_status_history
+delivery_confirmations
+```
+
+---
+
+# Module 13.3 — Dispatcher Dashboard
+
+```text
+/dispatcher/dashboard
+/dispatcher/deliveries
+/dispatcher/deliveries/{id}
+```
+
+---
+
+# Module 13.4 — Assignment
+
+MVP:
+
+```text
+Dispatcher Manager/Admin
+        ↓
+Select Dispatcher
+        ↓
+Assign Delivery
+```
+
+Do **not** build automated dispatch optimization initially.
+
+---
+
+# PHASE 14 — Pickup
+
+Dispatcher workflow:
+
+```text
+Assigned
+   ↓
+Accepted
+   ↓
+Arrive at Vendor
+   ↓
+Confirm Pickup
+```
+
+Record:
+
+```text
+timestamp
+dispatcher
+order
+location if enabled
+```
+
+---
+
+# PHASE 15 — Delivery
+
+## Module 15.1 — Delivery Workflow
+
+```text
+PICKED_UP
+     ↓
+OUT_FOR_DELIVERY
+     ↓
+DELIVERED
+```
+
+---
+
+# Module 15.2 — Delivery OTP
+
+Generate OTP when appropriate.
+
+Customer receives:
+
+```text
+Your delivery confirmation code is 4829.
+```
+
+Dispatcher enters:
+
+```text
+4829
+```
+
+Backend validates it.
+
+---
+
+# Module 15.3 — Delivery Confirmation
+
+Record:
+
+```text
+delivery_id
+dispatcher_id
+confirmed_at
+confirmation_method
+OTP verification
+GPS if enabled
+```
+
+---
+
+# Module 15.4 — Customer Confirmation
+
+Customer sees:
+
+```text
+Your order has been delivered.
+
+[Confirm Receipt]
+```
+
+Then:
+
+```text
+DELIVERED
+    ↓
+CUSTOMER_CONFIRMED
+    ↓
+COMPLETED
+```
+
+---
+
+# PHASE 16 — Notifications
+
+## Module 16.1 — Notification Architecture
+
+Use:
+
+```text
+Events
+   ↓
+Listeners
+   ↓
+Jobs
+   ↓
+Notifications
+```
+
+Events:
+
+```text
+OrderPlaced
+PaymentSuccessful
+OrderAccepted
+OrderPreparing
+OrderReady
+DispatcherAssigned
+OrderPickedUp
+OrderOutForDelivery
+OrderDelivered
+OrderCompleted
+```
+
+---
+
+# Module 16.2 — Notification Channels
+
+MVP:
+
+```text
+In-app
+Email
+```
+
+Then:
+
+```text
+SMS
+Push
+WhatsApp
+```
+
+---
+
+# PHASE 17 — Reviews & Ratings
+
+Create:
+
+```text
+reviews
+```
+
+Customer can review:
+
+```text
+Vendor
+Food
+Delivery
+```
+
+Only completed orders qualify.
+
+---
+
+# PHASE 18 — Favorites
+
+Create:
+
+```text
+favorites
+```
+
+Customer can favorite:
+
+* Vendors
+* Food items
+
+Build:
+
+```text
+/favorites
+```
+
+---
+
+# PHASE 19 — Admin Management
+
+## Module 19.1 — Admin Dashboard
+
+```text
+/admin/dashboard
+```
+
+Metrics:
+
+```text
+Customers
+Vendors
+Orders
+Revenue
+Payments
+Deliveries
+Commission
+```
+
+---
+
+# Module 19.2 — User Management
+
+```text
+/admin/users
+/admin/customers
+/admin/dispatchers
+```
+
+Actions:
+
+* View
+* Suspend
+* Activate
+* Search
+* Filter
+
+---
+
+# Module 19.3 — Vendor Management
+
+```text
+/admin/vendors
+/admin/vendors/applications
+/admin/vendors/{id}
+```
+
+---
+
+# Module 19.4 — Order Management
+
+Admin can:
+
+* View all orders
+* Search
+* Filter
+* View timeline
+* Cancel
+* Investigate
+* Refund where authorized
+
+---
+
+# PHASE 20 — Delivery Zones & Pricing
+
+Create:
+
+```text
+delivery_zones
+delivery_fees
+```
+
+Example:
+
+```text
+Zone A
+0–3 km
+₦700
+
+Zone B
+3–7 km
+₦1,000
+
+Zone C
+7–12 km
+₦1,500
+```
+
+Initially, this can be manually configured.
+
+---
+
+# PHASE 21 — Commission & Financial Ledger
+
+## Module 21.1 — Commission
+
+Calculate:
+
+```text
+Order
+ ↓
+Gross Amount
+ ↓
+Commission
+ ↓
+Vendor Net Amount
+```
+
+---
+
+# Module 21.2 — Vendor Wallet
+
+Create:
+
+```text
+vendor_wallets
+wallet_transactions
+```
+
+---
+
+# Module 21.3 — Settlements
+
+Create:
+
+```text
+settlements
+```
+
+Support:
+
+```text
+Pending
+Processing
+Paid
+Failed
+```
+
+---
+
+# PHASE 22 — Vendor Advertising
+
+This is where FoodPalace starts becoming more than an ordering platform.
+
+Create:
+
+```text
+advertising_campaigns
+advertising_placements
+```
+
+Support:
+
+```text
+Featured Vendor
+Sponsored Listing
+Homepage Banner
+Food Promotion
+```
+
+Campaign:
+
+```text
+Vendor
+Campaign
+Placement
+Budget
+Start Date
+End Date
+Status
+Impressions
+Clicks
+```
+
+---
+
+# PHASE 23 — Promotions & Coupons
+
+Create:
+
+```text
+promotions
+coupons
+```
+
+Support:
+
+```text
+Percentage discount
+Fixed discount
+Vendor-specific discount
+Food-specific discount
+Minimum order
+Maximum discount
+Start/end dates
+Usage limits
+```
+
+---
+
+# PHASE 24 — Support System
+
+Create:
+
+```text
+support_tickets
+support_messages
+```
+
+Customer can report:
+
+```text
+Missing food
+Wrong food
+Late delivery
+Payment problem
+Vendor problem
+Dispatcher problem
+```
+
+Admin/support can respond.
+
+---
+
+# PHASE 25 — Reporting & Analytics
+
+## Customer Analytics
+
+* Orders
+* Spending
+* Favorite vendors
+
+## Vendor Analytics
+
+```text
+Revenue
+Orders
+Popular Items
+Average Order Value
+Customers
+Reviews
+Cancellation Rate
+```
+
+## Admin Analytics
+
+```text
+GMV
+Revenue
+Commission
+Orders
+Customers
+Vendors
+Delivery Performance
+Payment Success Rate
+```
+
+---
+
+# PHASE 26 — Security Hardening
+
+Before production:
+
+### Authentication
+
+* Rate limiting
+* Password policies
+* Email verification
+* Token security
+
+### API
+
+* CORS
+* Authorization
+* Request validation
+* Rate limiting
+
+### Payments
+
+* Webhook signature verification
+* Idempotency
+* Transaction verification
+
+### Files
+
+* MIME validation
+* Size limits
+* Secure storage
+* File-name sanitization
+
+### Database
+
+* Least privilege
+* Constraints
+* Indexes
+* Backups
+
+---
+
+# PHASE 27 — Testing
+
+Testing should not be postponed until the end.
+
+Every module should contain tests.
+
+## Backend
+
+```text
+Unit
+Feature
+API
+Authorization
+Database
+Payment
+Webhook
+```
+
+## Frontend
+
+```text
+Component
+Form
+API
+State
+Navigation
+```
+
+## E2E
+
+The most important test:
+
+```text
+Customer
+ ↓
+Register
+ ↓
+Browse Vendor
+ ↓
+Select Food
+ ↓
+Cart
+ ↓
+Checkout
+ ↓
+Pay
+ ↓
+Vendor Accept
+ ↓
+Prepare
+ ↓
+Ready
+ ↓
+Dispatcher Assigned
+ ↓
+Pickup
+ ↓
+Delivery
+ ↓
+OTP
+ ↓
+Customer Confirmation
+ ↓
+Completed
+```
+
+---
+
+# PHASE 28 — CI/CD
+
+## Backend Pipeline
+
+```text
+Git Push
+   ↓
+GitHub Actions
+   ↓
+Composer
+   ↓
+Pint
+   ↓
+PHPStan
+   ↓
+Tests
+   ↓
+Build
+   ↓
+Railway
+```
+
+## Frontend Pipeline
+
+```text
+Git Push
+   ↓
+GitHub
+   ↓
+Lint
+   ↓
+Type Check
+   ↓
+Tests
+   ↓
+Build
+   ↓
+Vercel
+```
+
+---
+
+# PHASE 29 — Staging Environment
+
+Before production:
+
+```text
+foodpalace-staging
+```
+
+Use:
+
+```text
+Vercel Preview/Staging
+        ↓
+Railway Staging
+        ↓
+Supabase Staging DB
+```
+
+Use **test payment credentials**.
+
+Test the complete transaction.
+
+---
+
+# PHASE 30 — Production Deployment
+
+## Next.js
+
+Deploy:
+
+```text
+foodpalace-frontend
+        ↓
+Vercel
+        ↓
+foodpalace.com
+```
+
+## Laravel
+
+Deploy:
+
+```text
+foodpalace-backend
+        ↓
+Railway
+        ↓
+api.foodpalace.com
+```
+
+## Database
+
+```text
+Supabase
+   ↓
+PostgreSQL
+```
+
+Recommended domain architecture:
+
+```text
+foodpalace.com
+www.foodpalace.com
+
+api.foodpalace.com
+```
+
+---
+
+# PHASE 31 — Production Operations
+
+Configure:
+
+* Error monitoring
+* Logging
+* Backups
+* Queue workers
+* Scheduler
+* Health checks
+* Database monitoring
+* Payment monitoring
+* Uptime monitoring
+
+---
+
+# PHASE 32 — MVP RELEASE
+
+The **MVP should stop here**:
+
+```text
+┌──────────────────────────────────────────────┐
+│                 FOODPALACE MVP               │
+├──────────────────────────────────────────────┤
+│ Authentication                               │
+│ Customer profiles                            │
+│ Vendor registration                           │
+│ Vendor approval                               │
+│ Vendor profiles                               │
+│ Menu management                               │
+│ Food discovery                                │
+│ Search                                        │
+│ Cart                                          │
+│ Checkout                                      │
+│ Payment                                       │
+│ Order management                              │
+│ Vendor order processing                       │
+│ Dispatcher management                         │
+│ Pickup confirmation                           │
+│ Delivery confirmation                         │
+│ Delivery OTP                                  │
+│ Customer confirmation                         │
+│ Notifications                                 │
+│ Reviews                                       │
+│ Admin dashboard                               │
+│ Basic commission                              │
+│ Basic delivery zones                          │
+│ Basic reporting                               │
+└──────────────────────────────────────────────┘
+```
+
+The MVP's critical success test is:
+
+> **Can a real customer successfully pay for food from a real vendor and have a dispatcher deliver it with verifiable confirmation?**
+
+If yes, you have a functioning FoodPalace marketplace.
+
+---
+
+# POST-MVP MODULES
+
+After the MVP is stable, add:
+
+## Phase 33 — Advanced Dispatch
+
+```text
+Automatic rider assignment
+Distance calculation
+Rider availability
+Delivery optimization
+```
+
+## Phase 34 — Live Tracking
+
+```text
+Dispatcher GPS
+      ↓
+Laravel/WebSocket
+      ↓
+Customer
+```
+
+Potential technologies:
+
+* Laravel Reverb
+* WebSockets
+* Redis
+* Map provider
+
+---
+
+# Phase 35 — Mobile Application
+
+Do **not** rebuild the backend.
+
+The architecture should allow:
+
+```text
+                   Laravel API
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       Next.js       Mobile       Admin
+       Web App        App          Portal
+```
+
+Possible future mobile stack:
+
+```text
+React Native / Expo
+```
+
+---
+
+# Phase 36 — Vendor Subscription
+
+Introduce:
+
+```text
+Free
+Basic
+Professional
+Premium
+```
+
+Different plans can provide:
+
+* More menu items
+* Analytics
+* Advertising credits
+* Featured placement
+* Lower commission
+* Staff accounts
+
+---
+
+# Phase 37 — Advanced Advertising
+
+Introduce:
+
+```text
+Sponsored Search
+Sponsored Food
+Vendor Banners
+Campaign Analytics
+Budget Management
+```
+
+---
+
+# Phase 38 — Loyalty
+
+Potential:
+
+```text
+FoodPalace Points
+Referral Bonuses
+Customer Loyalty
+Vendor Rewards
+```
+
+---
+
+# Complete Implementation Dependency Map
+
+The development order should look like this:
+
+```text
+                    PROJECT SETUP
+                         │
+                         ▼
+               DEVELOPMENT FOUNDATION
+                         │
+                         ▼
+                DATABASE + API CORE
+                         │
+                         ▼
+                 AUTHENTICATION/RBAC
+                         │
+             ┌───────────┴───────────┐
+             ▼                       ▼
+         CUSTOMER                 VENDOR
+             │                       │
+             │                   ONBOARDING
+             │                       │
+             │                       ▼
+             │                  MENU MANAGEMENT
+             │                       │
+             └───────────┬───────────┘
+                         ▼
+                  MARKETPLACE
+                         │
+                         ▼
+                       CART
+                         │
+                         ▼
+                     CHECKOUT
+                         │
+                         ▼
+                      ORDERS
+                         │
+                         ▼
+                     PAYMENTS
+                         │
+                         ▼
+                 VENDOR PROCESSING
+                         │
+                         ▼
+                     DISPATCH
+                         │
+                         ▼
+                      PICKUP
+                         │
+                         ▼
+                     DELIVERY
+                         │
+                         ▼
+                 CUSTOMER CONFIRM
+                         │
+                         ▼
+                    COMPLETED
+                         │
+             ┌───────────┼────────────┐
+             ▼           ▼            ▼
+         REVIEWS      COMMISSION   REPORTING
+             │           │            │
+             └───────────┼────────────┘
+                         ▼
+                  ADMINISTRATION
+                         │
+                         ▼
+                  SECURITY/TESTING
+                         │
+                         ▼
+                     STAGING
+                         │
+                         ▼
+                    PRODUCTION
+                         │
+                         ▼
+                       MVP
+                         │
+              ┌──────────┼───────────┐
+              ▼          ▼           ▼
+          LIVE GPS    ADS/SUBS    MOBILE APP
+```
+
+# Recommended Development Sprint Structure
+
+I would divide the actual coding into approximately **18 development milestones**:
+
+| Milestone | Module                       | Result                       |
+| --------: | ---------------------------- | ---------------------------- |
+|        01 | GitHub + Architecture        | Repositories ready           |
+|        02 | Laravel + Next.js Foundation | Applications running         |
+|        03 | Database + API Foundation    | Backend foundation           |
+|        04 | Authentication + RBAC        | Users can authenticate       |
+|        05 | Customer                     | Customer account             |
+|        06 | Vendor Onboarding            | Vendors can register         |
+|        07 | Vendor Approval              | Admin can approve vendors    |
+|        08 | Menu Management              | Vendors can publish food     |
+|        09 | Marketplace                  | Customers discover food      |
+|        10 | Cart + Checkout              | Customer can prepare order   |
+|        11 | Payment                      | Customer can pay             |
+|        12 | Order Engine                 | Order lifecycle works        |
+|        13 | Vendor Order Processing      | Vendor processes orders      |
+|        14 | Dispatch + Delivery          | Food can be delivered        |
+|        15 | Notifications + Reviews      | Complete customer experience |
+|        16 | Admin + Commission           | Platform operations          |
+|        17 | Testing + Security           | Production-ready candidate   |
+|        18 | Deployment                   | **FoodPalace MVP live**      |
+
+---
+
+# The Most Important Implementation Principle
+
+I would **not** develop these modules completely independently.
+
+Instead, each module should follow this vertical-slice pattern:
+
+```text
+MODULE
+  │
+  ├── Database
+  │
+  ├── Laravel Model
+  │
+  ├── Migration
+  │
+  ├── Enum
+  │
+  ├── Form Request
+  │
+  ├── Policy
+  │
+  ├── Service
+  │
+  ├── API Controller
+  │
+  ├── API Resource
+  │
+  ├── API Documentation
+  │
+  ├── Backend Tests
+  │
+  ├── Next.js Types
+  │
+  ├── API Service
+  │
+  ├── React Components
+  │
+  ├── Pages
+  │
+  ├── Validation
+  │
+  ├── Frontend Tests
+  │
+  └── E2E Tests
+```
+
+For example, **Module 8 — Menu Management** isn't considered complete merely because the Laravel CRUD exists.
+
+It is complete when:
+
+```text
+Vendor
+  ↓
+Login
+  ↓
+Open Menu
+  ↓
+Create Category
+  ↓
+Create Food Item
+  ↓
+Upload Image
+  ↓
+Set Price
+  ↓
+Set Availability
+  ↓
+Publish
+  ↓
+Customer sees item
+  ↓
+Customer can order it
+```
+
+That approach will keep the **Next.js frontend, Laravel backend, PostgreSQL database and API contract synchronized throughout development**, rather than discovering integration problems near the end.
+
