@@ -100,7 +100,7 @@ export async function fetchMenuItems(vendorId: string) {
     .from('menu_items')
     .select('*')
     .eq('vendor_id', vendorId)
-    .eq('available', true);
+    .eq('available', 'true');
 
   if (itemsError) throw itemsError;
 
