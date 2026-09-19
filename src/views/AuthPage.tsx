@@ -97,7 +97,7 @@ export default function AuthPage() {
                 >
                   <option value="customer">Customer</option>
                   <option value="vendor">Vendor/Restaurant Owner</option>
-                  <option value="rider">Dispatch Rider</option>
+                  <option value="dispatcher">Dispatch Rider</option>
                 </select>
               </div>
             </>

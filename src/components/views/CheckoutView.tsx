@@ -22,11 +22,15 @@ import {
   ChevronRight,
   AlertCircle
 } from 'lucide-react';
-import { CartItem, Address, PaymentMethod, Order } from '../../types';
+import { CartItem, Address, PaymentMethod, Order, OrderTimelineEvent } from '../../types';
+import { createOrder, markOrderPaymentReceived, createAddress } from '../../services/api';
 
 interface CheckoutViewProps {
   cartItems: CartItem[];
   savedAddresses: Address[];
+  customerId: string | null;
+  userId: string | null;
+  onAddressCreated: () => void;
   onBackToMenu: () => void;
   onOrderSuccess: (newOrder: Order) => void;
   onShowToast: (message: string) => void;
@@ -35,35 +39,46 @@ interface CheckoutViewProps {
 export const CheckoutView: React.FC<CheckoutViewProps> = ({
   cartItems,
   savedAddresses,
+  customerId,
+  userId,
+  onAddressCreated,
   onBackToMenu,
   onOrderSuccess,
   onShowToast,
 }) => {
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(savedAddresses[0]?.id || 'addr-1');
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(savedAddresses[0]?.id || '');
   const [dispatchInstructions, setDispatchInstructions] = useState('Call when at the gate');
-  const [customerName, setCustomerName] = useState('Emeka Daniel');
-  const [customerPhone, setCustomerPhone] = useState('803 123 4567');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('paystack');
-  const [chefInstructions, setChefInstructions] = useState('Pack sauce separately please');
-  const [promoCode, setPromoCode] = useState('FOODPALACE1K');
-  const [promoApplied, setPromoApplied] = useState(true);
+  const [chefInstructions, setChefInstructions] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showNewAddressModal, setShowNewAddressModal] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
 
   // Form states for new address
   const [newAddrLabel, setNewAddrLabel] = useState<'HOME' | 'OFFICE' | 'OTHER'>('HOME');
   const [newAddrText, setNewAddrText] = useState('');
   const [newAddrLandmark, setNewAddrLandmark] = useState('');
 
+  // savedAddresses loads asynchronously after mount, so keep the selection
+  // in sync once real addresses arrive instead of only reading them once.
+  React.useEffect(() => {
+    if (!selectedAddressId && savedAddresses.length > 0) {
+      setSelectedAddressId(savedAddresses[0].id);
+    }
+  }, [savedAddresses, selectedAddressId]);
+
   // Calculations
-  const foodSubtotal = cartItems.length > 0 
-    ? cartItems.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0)
-    : 12000;
+  const foodSubtotal = cartItems.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0);
   const deliveryFee = 800;
   const serviceFee = 300;
   const discount = promoApplied ? 1000 : 0;
   const totalPayable = foodSubtotal + deliveryFee + serviceFee - discount;
+  const vendorName = cartItems[0]?.vendorName || 'Vendor';
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toUpperCase() === 'FOODPALACE1K' || promoCode.trim().toUpperCase() === 'BENUEFEAST20') {
@@ -75,137 +90,166 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
   };
 
   const handleInitiatePayment = () => {
+    if (!customerId) {
+      onShowToast('You need to be signed in as a customer to check out.');
+      return;
+    }
+    if (cartItems.length === 0) {
+      onShowToast('Your tray is empty.');
+      return;
+    }
+    if (!selectedAddressId) {
+      onShowToast('Please select or add a delivery address first.');
+      return;
+    }
+    if (!customerName.trim() || !customerPhone.trim()) {
+      onShowToast('Please enter the recipient\'s name and phone number.');
+      return;
+    }
     setShowPaymentModal(true);
   };
 
-  const handleConfirmGatewayPayment = () => {
+  const handleConfirmGatewayPayment = async () => {
+    if (!customerId) return;
+
+    const chosenAddress = savedAddresses.find(a => a.id === selectedAddressId);
+    if (!chosenAddress) {
+      onShowToast('Please select a delivery address.');
+      return;
+    }
+
     setIsProcessingPayment(true);
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      setShowPaymentModal(false);
-
-      const chosenAddress = savedAddresses.find(a => a.id === selectedAddressId) || savedAddresses[0];
-
-      // Create new active order matching PRD and screen3.png
-      const createdOrder: Order = {
-        id: `fp-${Math.floor(100000 + Math.random() * 900000)}`,
-        orderNumber: '#FP-108429',
-        customerName,
-        customerPhone: `+234 ${customerPhone}`,
-        vendorId: 'mamas-kitchen',
-        vendorName: "Mama's Kitchen",
-        items: cartItems.length > 0 ? cartItems : [
-          {
-            id: 'it-1',
-            menuItemId: 'm-jollof-combo',
-            name: 'Royal Jollof Rice Combo',
-            basePrice: 4500,
-            unitPrice: 6000,
-            quantity: 2,
-            selectedModifiers: [],
-            vendorId: 'mamas-kitchen',
-            vendorName: "Mama's Kitchen"
-          }
-        ],
+    try {
+      const order = await createOrder({
+        customerId,
+        vendorId: cartItems[0].vendorId,
+        items: cartItems.map(it => ({
+          menuItemId: it.menuItemId,
+          name: it.name,
+          basePrice: it.basePrice,
+          unitPrice: it.unitPrice,
+          quantity: it.quantity,
+          selectedVariantId: it.selectedVariant?.id,
+          modifierOptions: it.selectedModifiers,
+          specialInstructions: it.specialInstructions,
+          imageUrl: it.image,
+        })),
         subtotal: foodSubtotal,
         deliveryFee,
         serviceFee,
         discount,
         total: totalPayable,
-        status: 'OUT_FOR_DELIVERY',
-        deliveryOtp: '4829',
+        deliveryAddressId: selectedAddressId,
+        paymentMethod,
+        customerNote: chefInstructions || undefined,
+      });
+
+      // No real gateway is wired up yet (see markOrderPaymentReceived) — this
+      // simulates a successful charge so the rest of the order flow can be
+      // exercised against real data until Paystack/Flutterwave + server-side
+      // verification replace it.
+      await markOrderPaymentReceived(order.id);
+
+      const timeline: OrderTimelineEvent[] = [
+        {
+          status: 'PENDING_PAYMENT',
+          label: 'Order Created',
+          timestamp: 'Just now',
+          description: 'Order has been created and awaiting payment confirmation',
+          completed: true,
+        },
+        {
+          status: 'PAID',
+          label: 'Payment Confirmed',
+          timestamp: 'Just now',
+          description: `${paymentMethod === 'paystack' ? 'Paystack' : 'Flutterwave'} settlement confirmed`,
+          completed: true,
+          isCurrent: true,
+        },
+      ];
+
+      const confirmedOrder: Order = {
+        id: order.id,
+        orderNumber: order.order_number,
+        customerName,
+        customerPhone: `+234 ${customerPhone}`,
+        vendorId: cartItems[0].vendorId,
+        vendorName,
+        items: cartItems,
+        subtotal: foodSubtotal,
+        deliveryFee,
+        serviceFee,
+        discount,
+        total: totalPayable,
+        status: 'PAID',
+        deliveryOtp: order.delivery_otp,
         deliveryAddress: {
           ...chosenAddress,
-          instructions: dispatchInstructions
+          instructions: dispatchInstructions,
         },
         paymentMethod,
         isPaid: true,
         paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WAT',
-        rider: {
-          id: 'rider-terna',
-          name: 'Terna Michael',
-          phone: '+234 812 998 1234',
-          rating: 4.9,
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80',
-          vehicle: 'Bajaj Pulsar 150',
-          plateNumber: 'MKD-441-XA (Benue)',
-          etaMinutes: 12,
-          ordersCompleted: 412,
-          currentLocationName: 'Wurukum Market bypass'
-        },
-        customerNote: chefInstructions,
-        createdAt: new Date().toISOString(),
-        timeline: [
-          {
-            status: 'PAID',
-            label: 'Order Placed & Paid',
-            timestamp: 'Just now',
-            description: `${paymentMethod === 'paystack' ? 'Paystack' : 'Flutterwave'} Instant Settlement Confirmed`,
-            completed: true
-          },
-          {
-            status: 'ACCEPTED',
-            label: 'Vendor Accepted',
-            timestamp: 'Just now',
-            description: "Mama's Kitchen Wurukum Flagship",
-            completed: true
-          },
-          {
-            status: 'PREPARING',
-            label: 'Food Being Prepared',
-            timestamp: 'In progress',
-            description: 'Chef station packing fresh batches',
-            completed: true
-          },
-          {
-            status: 'READY_FOR_PICKUP',
-            label: 'Ready for Pickup',
-            timestamp: 'Pending',
-            description: 'Bagged with tamper-proof security seal',
-            completed: true
-          },
-          {
-            status: 'DISPATCH_ASSIGNED',
-            label: 'Dispatcher Assigned',
-            timestamp: 'Pending',
-            description: 'Terna Michael assigned to delivery',
-            completed: true
-          },
-          {
-            status: 'PICKED_UP',
-            label: 'Order Picked Up',
-            timestamp: 'Pending',
-            description: 'Courier collected from restaurant',
-            completed: true
-          },
-          {
-            status: 'OUT_FOR_DELIVERY',
-            label: 'Out for Delivery',
-            timestamp: 'Active',
-            description: 'Courier in transit on motorcycle (12 min eta)',
-            completed: false,
-            isCurrent: true
-          },
-          {
-            status: 'DELIVERED',
-            label: 'Delivered to Gate / Door',
-            timestamp: 'Awaiting',
-            description: 'Awaiting courier arrival at delivery landmark',
-            completed: false
-          },
-          {
-            status: 'CUSTOMER_CONFIRMED',
-            label: 'Customer Confirmed',
-            timestamp: 'Awaiting',
-            description: 'Awaiting 4-digit OTP verification (4829)',
-            completed: false
-          }
-        ]
+        customerNote: chefInstructions || undefined,
+        createdAt: order.created_at,
+        timeline,
       };
 
-      onOrderSuccess(createdOrder);
-    }, 1600);
+      setShowPaymentModal(false);
+      onOrderSuccess(confirmedOrder);
+    } catch (err) {
+      onShowToast(err instanceof Error ? `Order failed: ${err.message}` : 'Order failed. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
+
+  const handleSaveNewAddress = async () => {
+    if (!userId) return;
+    if (!newAddrText.trim() || !newAddrLandmark.trim()) {
+      onShowToast('Please enter both an address and a landmark');
+      return;
+    }
+
+    setIsSavingAddress(true);
+    try {
+      const created = await createAddress({
+        userId,
+        label: newAddrLabel,
+        tag: newAddrLabel === 'HOME' ? 'Home Address' : newAddrLabel === 'OFFICE' ? 'Office Address' : 'Saved Address',
+        addressText: newAddrText.trim(),
+        landmark: newAddrLandmark.trim(),
+        isPrimary: savedAddresses.length === 0,
+      });
+      onAddressCreated();
+      setSelectedAddressId(created.id);
+      setShowNewAddressModal(false);
+      setNewAddrText('');
+      setNewAddrLandmark('');
+      onShowToast('Address saved successfully!');
+    } catch (err) {
+      onShowToast(err instanceof Error ? err.message : 'Failed to save address');
+    } finally {
+      setIsSavingAddress(false);
+    }
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="w-full bg-slate-50 dark:bg-[#0b0f17] min-h-screen py-8 px-4 sm:px-6 lg:px-12 transition-colors flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-sm">
+          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Your tray is empty</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Add something from a vendor's menu before checking out.</p>
+          <button
+            onClick={onBackToMenu}
+            className="px-6 py-2.5 bg-[#aa2d00] hover:bg-[#aa2d00]/90 text-white rounded-full text-sm font-bold transition-colors"
+          >
+            Browse Menu
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-slate-50 dark:bg-[#0b0f17] min-h-screen py-8 px-4 sm:px-6 lg:px-12 transition-colors">
@@ -496,14 +540,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               <div className="bg-slate-900 text-white p-3.5 rounded-xl flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-orange-600 p-1 flex items-center justify-center font-bold text-base">
-                    MK
+                    {vendorName.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <div className="font-bold text-sm flex items-center gap-1">
-                      <span>Mama's Kitchen</span>
+                      <span>{vendorName}</span>
                       <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
                     </div>
-                    <div className="text-[11px] text-slate-300">Wurukum District • ⏱ 25–35 mins</div>
                   </div>
                 </div>
                 <span className="text-[10px] font-bold bg-[#af3003] px-2 py-0.5 rounded-full uppercase">
@@ -513,7 +556,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Selected Basket Items ({cartItems.length || 3})
+                  Selected Basket Items ({cartItems.length})
                 </span>
                 <button
                   onClick={onBackToMenu}
@@ -525,55 +568,21 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
               {/* Items Snapshot */}
               <div className="space-y-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-                {cartItems.length > 0 ? (
-                  cartItems.map((it) => (
-                    <div key={it.id} className="flex justify-between items-start text-xs">
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">
-                          {it.name} <span className="text-slate-400 font-normal">× {it.quantity}</span>
-                        </div>
-                        {it.selectedVariant && (
-                          <div className="text-[11px] text-slate-500">{it.selectedVariant.name}</div>
-                        )}
+                {cartItems.map((it) => (
+                  <div key={it.id} className="flex justify-between items-start text-xs">
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white">
+                        {it.name} <span className="text-slate-400 font-normal">× {it.quantity}</span>
                       </div>
-                      <span className="font-bold text-slate-900 dark:text-white shrink-0">
-                        ₦{(it.unitPrice * it.quantity).toLocaleString()}
-                      </span>
+                      {it.selectedVariant && (
+                        <div className="text-[11px] text-slate-500">{it.selectedVariant.name}</div>
+                      )}
                     </div>
-                  ))
-                ) : (
-                  <>
-                    <div className="flex justify-between items-start text-xs">
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">
-                          Royal Jollof Rice <span className="text-slate-400 font-normal">× 2</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500">Smokey party style • Beef chunk</div>
-                      </div>
-                      <span className="font-bold text-slate-900 dark:text-white">₦7,000</span>
-                    </div>
-
-                    <div className="flex justify-between items-start text-xs">
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">
-                          Extra Plantain (Dodo) <span className="text-slate-400 font-normal">× 2</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500">Sweet sliced portion</div>
-                      </div>
-                      <span className="font-bold text-slate-900 dark:text-white">₦1,000</span>
-                    </div>
-
-                    <div className="flex justify-between items-start text-xs">
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">
-                          Egusi Soup + Pounded Yam <span className="text-slate-400 font-normal">× 1</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500">Assorted meat & stockfish</div>
-                      </div>
-                      <span className="font-bold text-slate-900 dark:text-white">₦4,000</span>
-                    </div>
-                  </>
-                )}
+                    <span className="font-bold text-slate-900 dark:text-white shrink-0">
+                      ₦{(it.unitPrice * it.quantity).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               {/* Promo Code Input */}
@@ -709,7 +718,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 </div>
                 <div className="flex justify-between text-slate-500">
                   <span>Vendor Destination:</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Mama's Kitchen Wurukum</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{vendorName}</span>
                 </div>
                 <div className="flex justify-between text-slate-500">
                   <span>Customer:</span>
@@ -847,17 +856,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (!newAddrText) {
-                    onShowToast('Please enter an address');
-                    return;
-                  }
-                  setShowNewAddressModal(false);
-                  onShowToast('Address saved successfully!');
-                }}
-                className="flex-1 py-2.5 bg-[#aa2d00] hover:bg-[#ea580c] text-white font-bold text-xs rounded-xl"
+                onClick={handleSaveNewAddress}
+                disabled={isSavingAddress}
+                className="flex-1 py-2.5 bg-[#aa2d00] hover:bg-[#ea580c] text-white font-bold text-xs rounded-xl disabled:opacity-60"
               >
-                Save Landmark
+                {isSavingAddress ? 'Saving...' : 'Save Landmark'}
               </button>
             </div>
           </div>

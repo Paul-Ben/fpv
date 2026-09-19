@@ -16,7 +16,7 @@ import { VendorDashboardView } from './components/views/VendorDashboardView';
 import { RiderPortalView } from './components/views/RiderPortalView';
 import { SuperAdminView } from './components/views/SuperAdminView';
 import AuthPage from './views/AuthPage';
-import { fetchVendors, fetchMenuItems } from './services/api';
+import { fetchVendors, fetchMenuItems, fetchUserAddresses } from './services/api';
 import { AppView, Vendor, CartItem, Order, Address, CityZone, MenuItem } from './types';
 import { CheckCircle2, X } from 'lucide-react';
 
@@ -60,6 +60,30 @@ function AppContent() {
 
     loadData();
   }, []);
+
+  // Load the signed-in customer's saved addresses once their profile resolves.
+  // addresses.user_id references the auth users row (user.id), not
+  // userProfile.id (which is the customers table row id) — those are
+  // different UUIDs for the same person.
+  useEffect(() => {
+    if (userProfile?.role === 'customer' && user?.id) {
+      fetchUserAddresses(user.id)
+        .then(setSavedAddresses)
+        .catch(() => showToast('Failed to load saved addresses'));
+    } else {
+      setSavedAddresses([]);
+    }
+  }, [userProfile, user]);
+
+  const refreshSavedAddresses = async () => {
+    if (userProfile?.role === 'customer' && user?.id) {
+      try {
+        setSavedAddresses(await fetchUserAddresses(user.id));
+      } catch {
+        showToast('Failed to refresh saved addresses');
+      }
+    }
+  };
 
   // Sync dark mode class on <html> / document element
   useEffect(() => {
@@ -196,8 +220,10 @@ function AppContent() {
     }));
   };
 
-  // Show auth page if not logged in and trying to access protected routes
-  if (!authLoading && !user && (currentView === 'vendor-dashboard' || currentView === 'rider-portal' || currentView === 'admin')) {
+  // Show auth page if not logged in and trying to access protected routes.
+  // Checkout requires a signed-in customer since orders are tied to a real
+  // customers.id — there's no guest checkout in this schema.
+  if (!authLoading && !user && (currentView === 'vendor-dashboard' || currentView === 'rider-portal' || currentView === 'admin' || currentView === 'checkout')) {
     return <AuthPage />;
   }
 
@@ -206,7 +232,7 @@ function AppContent() {
     if (user && userProfile) {
       if (userProfile.role === 'vendor' && currentView === 'explore') {
         setCurrentView('vendor-dashboard');
-      } else if (userProfile.role === 'rider' && currentView === 'explore') {
+      } else if (userProfile.role === 'dispatcher' && currentView === 'explore') {
         setCurrentView('rider-portal');
       }
     }
@@ -315,6 +341,9 @@ function AppContent() {
           <CheckoutView
             cartItems={cartItems}
             savedAddresses={savedAddresses}
+            customerId={userProfile?.role === 'customer' ? userProfile.id : null}
+            userId={user?.id ?? null}
+            onAddressCreated={refreshSavedAddresses}
             onBackToMenu={() => handleNavigate('restaurant-detail')}
             onOrderSuccess={handleOrderSuccess}
             onShowToast={showToast}

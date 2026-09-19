@@ -161,6 +161,7 @@ export async function createAddress(address: Omit<Address, 'id'> & { userId: str
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error('Failed to create address');
   return data;
 }
 
@@ -321,6 +322,21 @@ export async function updateOrderStatus(orderId: string, status: string) {
   });
 
   return data;
+}
+
+// TODO(payments): this simulates a successful charge. Replace with a real
+// Paystack/Flutterwave charge plus server-side webhook verification before
+// launch — the client must never be trusted to assert its own payment
+// succeeded. See DEPLOYMENT.md.
+export async function markOrderPaymentReceived(orderId: string) {
+  const { error } = await supabase
+    .from('orders')
+    .update({ is_paid: true, paid_at: new Date().toISOString() })
+    .eq('id', orderId);
+
+  if (error) throw error;
+
+  return updateOrderStatus(orderId, 'PAID');
 }
 
 function getStatusLabel(status: string): string {

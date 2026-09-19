@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (rider) {
-      setUserProfile({ role: 'rider', id: rider.id });
+      setUserProfile({ role: 'dispatcher', id: rider.id });
       return;
     }
     
@@ -105,27 +105,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (!error && data.user) {
-      // Create profile based on role
-      if (role === 'customer') {
-        await supabase.from('customers').insert({
-          user_id: data.user.id,
-          full_name: fullName || email.split('@')[0],
-          phone: '', // Should be collected in onboarding
-        });
-      } else if (role === 'vendor') {
-        // Vendor signup usually requires approval, create pending record
-        await supabase.from('vendors').insert({
-          user_id: data.user.id,
-          name: fullName || 'New Vendor',
-          status: 'pending',
-          description: '',
-          image_url: '',
-        });
-      }
+    if (error || !data.user) {
+      return { error };
     }
 
-    return { error };
+    // customers/vendors/dispatch_riders.user_id all reference this local
+    // users table (not auth.users directly), so it must exist first.
+    const { error: usersError } = await supabase.from('users').insert({
+      id: data.user.id,
+      email,
+      full_name: fullName || email.split('@')[0],
+      role,
+    });
+
+    if (usersError) {
+      return { error: usersError as unknown as AuthError };
+    }
+
+    // Create the role-specific profile row.
+    if (role === 'customer') {
+      await supabase.from('customers').insert({
+        user_id: data.user.id,
+      });
+    } else if (role === 'vendor') {
+      // Vendor signup requires admin approval before the vendor is visible
+      // to customers (status defaults to 'pending_review'). phone/address
+      // are placeholders here — there's no vendor onboarding form yet to
+      // collect them, so the vendor must fill them in before going live.
+      await supabase.from('vendors').insert({
+        user_id: data.user.id,
+        business_name: fullName || 'New Vendor',
+        phone: '',
+        email,
+        address: '',
+      });
+    } else if (role === 'dispatcher') {
+      // Same placeholder situation as vendors — no rider onboarding form yet.
+      await supabase.from('dispatch_riders').insert({
+        user_id: data.user.id,
+        phone: '',
+        vehicle: '',
+        plate_number: '',
+      });
+    }
+
+    return { error: null };
   };
 
   const signOut = async () => {
