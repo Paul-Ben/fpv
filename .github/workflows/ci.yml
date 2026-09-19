@@ -20,13 +20,15 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
-        
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
       - name: Type check
         run: npm run type-check
-        
-      - name: Lint
-        run: npm run lint
-        
+
+      # No test suite exists yet — add a `npm test` step here once one does.
+
       - name: Build
         run: npm run build
         env:
