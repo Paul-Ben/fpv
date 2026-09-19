@@ -182,6 +182,29 @@ vercel --prod
 
 ---
 
+## Staging Environment
+
+Before wiring up real payments, set up a second, fully separate environment so schema changes, payment testing, and RLS policy edits never touch production data or a live Paystack key.
+
+### Why a second Supabase project (not just a second Vercel env)
+
+Vercel's Preview deployments already give you a separate *frontend* build per branch/PR for free (see Step 5 below). But every one of those previews still points at whatever `VITE_SUPABASE_URL` you give it — so without a second Supabase project, "preview" and "production" share the same database and the same live Paystack key. A staging setup needs both halves separated.
+
+### Setup
+
+1. **Create a second Supabase project** (e.g. `foodpalace-staging`) and apply the same migration (`database/migrations/003_complete_clean_schema.sql`) to it.
+2. **Use Paystack test keys** (`pk_test_...`) for staging — never the live key.
+3. **In Vercel**, add the staging values under the **Preview** environment (Settings → Environment Variables → scope to "Preview"), keeping the production values scoped to "Production":
+   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` → staging project
+   - `VITE_PAYSTACK_PUBLIC_KEY` → `pk_test_...`
+   - `VITE_APP_URL` → the preview deployment's own URL pattern
+4. **In Supabase → Authentication → URL Configuration** for the staging project, add the Vercel preview URL pattern (`https://foodpalace-git-*.vercel.app/**`) to redirect URLs.
+5. Locally, developers keep using their own `.env` (gitignored) pointed at staging or a personal Supabase project — never at production.
+
+This means every PR preview build automatically exercises staging data and test payments, and production stays untouched until a merge to `main`.
+
+---
+
 ## Step 5: CI/CD Pipeline Setup
 
 ### Automatic Deployments on Push
@@ -259,9 +282,13 @@ jobs:
    - Function invocations
 
 ### Error Tracking
-Consider adding:
-- **Sentry** for frontend error tracking
-- **LogRocket** for session replay
+**Sentry** is already integrated (`src/lib/sentry.ts`, wired into `src/main.tsx` via an error boundary) but stays disabled until `VITE_SENTRY_DSN` is set. To enable it:
+
+1. Create a project at [sentry.io](https://sentry.io) and copy its DSN.
+2. Add `VITE_SENTRY_DSN` to Vercel's environment variables (scope to Production, and to Preview if using the staging setup above with its own Sentry project).
+3. Redeploy — no code changes needed.
+
+Consider also adding **LogRocket** for session replay if you need to see exactly what a user did before an error.
 
 ---
 
