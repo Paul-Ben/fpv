@@ -528,3 +528,5 @@ CREATE POLICY "View payments if can view order" ON payments
         EXISTS (SELECT 1 FROM customers c WHERE c.id = o.customer_id AND c.user_id = auth.uid())
         OR EXISTS (SELECT 1 FROM vendors v WHERE v.id = o.vendor_id AND v.user_id = auth.uid())
       )
+    )
+  );
