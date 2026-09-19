@@ -26,6 +26,9 @@ DROP TYPE IF EXISTS payment_method CASCADE;
 DROP TYPE IF EXISTS payment_status CASCADE;
 DROP TYPE IF EXISTS vendor_status CASCADE;
 DROP TYPE IF EXISTS delivery_zone_type CASCADE;
+DROP TYPE IF EXISTS city_zone CASCADE;
+DROP TYPE IF EXISTS address_label CASCADE;
+DROP TYPE IF EXISTS menu_item_category CASCADE;
 
 -- Now run the main migration
 -- Copy everything from 001_initial_schema.sql starting from line 1
