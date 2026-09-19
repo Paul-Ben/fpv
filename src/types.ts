@@ -5,15 +5,16 @@
 
 export type UserRole = 'customer' | 'vendor' | 'dispatcher' | 'admin';
 
-export type AppView = 
-  | 'explore' 
-  | 'restaurants' 
-  | 'restaurant-detail' 
-  | 'checkout' 
-  | 'tracking' 
-  | 'vendor-dashboard' 
-  | 'rider-portal' 
-  | 'admin';
+export type AppView =
+  | 'explore'
+  | 'restaurants'
+  | 'restaurant-detail'
+  | 'checkout'
+  | 'tracking'
+  | 'vendor-dashboard'
+  | 'rider-portal'
+  | 'admin'
+  | 'auth';
 
 export type CityZone = 'Makurdi' | 'Abuja' | 'Lagos';
 

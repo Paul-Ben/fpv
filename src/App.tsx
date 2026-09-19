@@ -18,10 +18,22 @@ import { SuperAdminView } from './components/views/SuperAdminView';
 import AuthPage from './views/AuthPage';
 import { fetchVendors, fetchMenuItems, fetchUserAddresses } from './services/api';
 import { AppView, Vendor, CartItem, Order, Address, CityZone, MenuItem } from './types';
+import { UserRole } from './lib/database.types';
 import { CheckCircle2, X } from 'lucide-react';
 
+// Which roles may access each gated view. Self-service signup only ever
+// creates 'customer' | 'vendor' | 'dispatcher' accounts (see AuthPage), but
+// the schema's user_role enum has more values (admin accounts are
+// provisioned directly), so the staff-role variants are included here too.
+const PROTECTED_VIEWS: Partial<Record<AppView, UserRole[]>> = {
+  'checkout': ['customer'],
+  'vendor-dashboard': ['vendor', 'vendor_staff'],
+  'rider-portal': ['dispatcher', 'dispatcher_manager'],
+  'admin': ['admin', 'super_admin', 'support_agent'],
+};
+
 function AppContent() {
-  const { user, userProfile, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading, signOut } = useAuth();
   const [currentView, setCurrentView] = useState<AppView>('explore');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [currentCity, setCurrentCity] = useState<CityZone>('Makurdi');
@@ -31,6 +43,7 @@ function AppContent() {
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -93,6 +106,24 @@ function AppContent() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Auto-redirect based on user role after login. This (and every other
+  // hook) must run unconditionally on every render — it used to sit after
+  // an early `return <AuthPage />` below, which meant React called a
+  // different number of hooks between renders (crashing with "Rendered
+  // fewer hooks than expected") the first time someone hit a gated view
+  // while logged out.
+  useEffect(() => {
+    if (user && userProfile && currentView === 'explore') {
+      if (userProfile.role === 'vendor') {
+        setCurrentView('vendor-dashboard');
+      } else if (userProfile.role === 'dispatcher') {
+        setCurrentView('rider-portal');
+      } else if (userProfile.role === 'admin' || userProfile.role === 'super_admin') {
+        setCurrentView('admin');
+      }
+    }
+  }, [user, userProfile, currentView]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -220,23 +251,36 @@ function AppContent() {
     }));
   };
 
-  // Show auth page if not logged in and trying to access protected routes.
-  // Checkout requires a signed-in customer since orders are tied to a real
-  // customers.id — there's no guest checkout in this schema.
-  if (!authLoading && !user && (currentView === 'vendor-dashboard' || currentView === 'rider-portal' || currentView === 'admin' || currentView === 'checkout')) {
-    return <AuthPage />;
+  // RBAC gate: every hook above has already run unconditionally, so it's
+  // safe to branch on render output from here on.
+  if (currentView === 'auth' && !user) {
+    return <AuthPage initialMode={authMode} />;
   }
 
-  // Auto-redirect based on user role after login
-  useEffect(() => {
-    if (user && userProfile) {
-      if (userProfile.role === 'vendor' && currentView === 'explore') {
-        setCurrentView('vendor-dashboard');
-      } else if (userProfile.role === 'dispatcher' && currentView === 'explore') {
-        setCurrentView('rider-portal');
-      }
+  const requiredRoles = PROTECTED_VIEWS[currentView];
+  if (requiredRoles && !authLoading) {
+    if (!user) {
+      return <AuthPage initialMode="login" />;
     }
-  }, [user, userProfile, currentView]);
+    if (userProfile && !requiredRoles.includes(userProfile.role)) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0b0f17] p-6">
+          <div className="text-center space-y-4 max-w-sm">
+            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Access Restricted</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Your account ({userProfile.role}) doesn't have access to this area.
+            </p>
+            <button
+              onClick={() => handleNavigate('explore')}
+              className="px-6 py-2.5 bg-[#aa2d00] hover:bg-[#aa2d00]/90 text-white rounded-full text-sm font-bold transition-colors"
+            >
+              Back to Explore
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 font-sans transition-colors">
@@ -265,14 +309,16 @@ function AppContent() {
         }}
         openAuthModal={(mode) => {
           if (!user) {
+            setAuthMode(mode === 'register' ? 'register' : 'login');
             setCurrentView('auth');
           } else {
             showToast(`User Account (${mode || 'profile'}) - Signed in as ${user.email}`);
           }
         }}
         user={user}
+        userRole={userProfile?.role}
         onSignOut={async () => {
-          await useAuth().signOut();
+          await signOut();
           setCurrentView('explore');
         }}
       />

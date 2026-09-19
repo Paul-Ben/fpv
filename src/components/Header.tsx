@@ -37,6 +37,7 @@ interface HeaderProps {
   setSearchQuery?: (query: string) => void;
   activeOrderCount?: number;
   user?: any | null;
+  userRole?: string;
   onSignOut?: () => Promise<void>;
 }
 
@@ -56,6 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery: externalSearchQuery,
   setSearchQuery: externalSetSearchQuery,
   user,
+  userRole,
   onSignOut,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -109,6 +111,14 @@ export const Header: React.FC<HeaderProps> = ({
   const cities: CityZone[] = ['Makurdi', 'Abuja', 'Lagos'];
 
   const isPortalActive = ['vendor', 'rider', 'admin', 'vendor-dashboard', 'rider-portal'].includes(currentView);
+
+  // Only show a portal link to the role it actually belongs to — someone
+  // who isn't signed in shouldn't see an "Admin Console" link they'll just
+  // bounce off of, and a vendor account shouldn't see the rider desk.
+  const canSeeVendorPortal = userRole === 'vendor' || userRole === 'vendor_staff';
+  const canSeeRiderPortal = userRole === 'dispatcher' || userRole === 'dispatcher_manager';
+  const canSeeAdminPortal = userRole === 'admin' || userRole === 'super_admin' || userRole === 'support_agent';
+  const hasAnyPortalAccess = canSeeVendorPortal || canSeeRiderPortal || canSeeAdminPortal;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#111622]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-200">
@@ -225,64 +235,72 @@ export const Header: React.FC<HeaderProps> = ({
               My Orders
             </button>
 
-            {/* Portals Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setPortalsDropdownOpen(!portalsDropdownOpen)}
-                className={`px-3.5 py-2 text-xs font-semibold rounded-full transition-colors flex items-center gap-1 ${
-                  isPortalActive
-                    ? 'bg-[#aa2d00] text-white'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>Portals</span>
-                <ChevronDown className="w-3 h-3" />
-              </button>
+            {/* Portals Dropdown — only shown to a role that actually has one */}
+            {hasAnyPortalAccess && (
+              <div className="relative">
+                <button
+                  onClick={() => setPortalsDropdownOpen(!portalsDropdownOpen)}
+                  className={`px-3.5 py-2 text-xs font-semibold rounded-full transition-colors flex items-center gap-1 ${
+                    isPortalActive
+                      ? 'bg-[#aa2d00] text-white'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>Portals</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
 
-              {portalsDropdownOpen && (
-                <div className="absolute top-full mt-2 right-0 w-52 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50">
-                  <button
-                    onClick={() => {
-                      handleNavigate('vendor-dashboard');
-                      setPortalsDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <Store className="w-4 h-4 text-[#ea580c]" />
-                    <div>
-                      <div className="font-semibold">Vendor Merchant Hub</div>
-                      <div className="text-[10px] text-slate-400">Live KDS & Menu 86'd</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleNavigate('rider-portal');
-                      setPortalsDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <Bike className="w-4 h-4 text-emerald-600" />
-                    <div>
-                      <div className="font-semibold">Rider Dispatch Desk</div>
-                      <div className="text-[10px] text-slate-400">Pickup & OTP Confirm</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleNavigate('admin');
-                      setPortalsDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
-                    <div>
-                      <div className="font-semibold">Platform Admin Console</div>
-                      <div className="text-[10px] text-slate-400">Approvals & Settlements</div>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
+                {portalsDropdownOpen && (
+                  <div className="absolute top-full mt-2 right-0 w-52 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50">
+                    {canSeeVendorPortal && (
+                      <button
+                        onClick={() => {
+                          handleNavigate('vendor-dashboard');
+                          setPortalsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <Store className="w-4 h-4 text-[#ea580c]" />
+                        <div>
+                          <div className="font-semibold">Vendor Merchant Hub</div>
+                          <div className="text-[10px] text-slate-400">Live KDS & Menu 86'd</div>
+                        </div>
+                      </button>
+                    )}
+                    {canSeeRiderPortal && (
+                      <button
+                        onClick={() => {
+                          handleNavigate('rider-portal');
+                          setPortalsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <Bike className="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <div className="font-semibold">Rider Dispatch Desk</div>
+                          <div className="text-[10px] text-slate-400">Pickup & OTP Confirm</div>
+                        </div>
+                      </button>
+                    )}
+                    {canSeeAdminPortal && (
+                      <button
+                        onClick={() => {
+                          handleNavigate('admin');
+                          setPortalsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <div className="font-semibold">Platform Admin Console</div>
+                          <div className="text-[10px] text-slate-400">Approvals & Settlements</div>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </nav>
 
           {/* Dark Mode Toggle */}
@@ -392,43 +410,51 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  handleNavigate('vendor-dashboard');
-                  setMobileMenuOpen(false);
-                }}
-                className="text-xs font-medium text-[#ea580c] bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1.5 rounded-md"
-              >
-                Vendor Hub
-              </button>
-              <button
-                onClick={() => {
-                  handleNavigate('rider-portal');
-                  setMobileMenuOpen(false);
-                }}
-                className="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-md"
-              >
-                Rider Desk
-              </button>
-              <button
-                onClick={() => {
-                  handleNavigate('admin');
-                  setMobileMenuOpen(false);
-                }}
-                className="text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-md"
-              >
-                Admin
-              </button>
+              {canSeeVendorPortal && (
+                <button
+                  onClick={() => {
+                    handleNavigate('vendor-dashboard');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-xs font-medium text-[#ea580c] bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1.5 rounded-md"
+                >
+                  Vendor Hub
+                </button>
+              )}
+              {canSeeRiderPortal && (
+                <button
+                  onClick={() => {
+                    handleNavigate('rider-portal');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-md"
+                >
+                  Rider Desk
+                </button>
+              )}
+              {canSeeAdminPortal && (
+                <button
+                  onClick={() => {
+                    handleNavigate('admin');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-md"
+                >
+                  Admin
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => {
-                handleAuthClick('register');
-                setMobileMenuOpen(false);
-              }}
-              className="text-xs font-bold text-white bg-[#aa2d00] px-3 py-1.5 rounded-full"
-            >
-              Sign Up
-            </button>
+            {!user && (
+              <button
+                onClick={() => {
+                  handleAuthClick('register');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-xs font-bold text-white bg-[#aa2d00] px-3 py-1.5 rounded-full"
+              >
+                Sign Up
+              </button>
+            )}
           </div>
         </div>
       )}

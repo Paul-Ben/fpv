@@ -48,44 +48,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
-    // Try to find user in customers table first
-    let { data: customer } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('user_id', userId)
+    // users.role is the source of truth for RBAC (set at signup and never
+    // guessed) — previously this function probed customers/vendors/
+    // dispatch_riders in a fixed order and silently defaulted anyone it
+    // didn't find (e.g. an admin, who has none of those rows) to 'customer'.
+    const { data: userRow, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
       .single();
 
-    if (customer) {
-      setUserProfile({ role: 'customer', id: customer.id });
+    if (userError || !userRow) {
+      setUserProfile(null);
       return;
     }
 
-    // Then check vendors
-    let { data: vendor } = await supabase
-      .from('vendors')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
+    const role = userRow.role;
 
-    if (vendor) {
-      setUserProfile({ role: 'vendor', id: vendor.id });
-      return;
+    if (role === 'customer') {
+      const { data: customer } = await supabase.from('customers').select('id').eq('user_id', userId).single();
+      setUserProfile({ role, id: customer?.id ?? '' });
+    } else if (role === 'vendor') {
+      const { data: vendor } = await supabase.from('vendors').select('id').eq('user_id', userId).single();
+      setUserProfile({ role, id: vendor?.id ?? '' });
+    } else if (role === 'dispatcher') {
+      const { data: rider } = await supabase.from('dispatch_riders').select('id').eq('user_id', userId).single();
+      setUserProfile({ role, id: rider?.id ?? '' });
+    } else {
+      // admin, super_admin, vendor_staff, dispatcher_manager, support_agent —
+      // none of these have a dedicated profile table; the auth user id is
+      // the identity.
+      setUserProfile({ role, id: userId });
     }
-
-    // Then check dispatch riders
-    let { data: rider } = await supabase
-      .from('dispatch_riders')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-
-    if (rider) {
-      setUserProfile({ role: 'dispatcher', id: rider.id });
-      return;
-    }
-    
-    // Default to customer if no specific profile found but user exists
-    setUserProfile({ role: 'customer', id: '' }); 
   };
 
   const signIn = async (email: string, password: string) => {

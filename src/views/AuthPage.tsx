@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../lib/database.types';
 
-export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+interface AuthPageProps {
+  initialMode?: 'login' | 'register';
+}
+
+export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -155,18 +159,6 @@ export default function AuthPage() {
               : 'Already have an account? Sign in'}
           </button>
         </div>
-
-        {isLogin && (
-          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <p className="text-xs text-slate-500 dark:text-slate-400 text-center mb-2">
-              Demo Vendor Credentials:
-            </p>
-            <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
-              <p>Email: mamas.kitchen@foodpalace.ng</p>
-              <p>Password: password123</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
