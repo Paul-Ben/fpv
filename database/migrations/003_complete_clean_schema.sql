@@ -533,3 +533,57 @@ CREATE POLICY "View payments if can view order" ON payments
       )
     )
   );
+
+-- users and dispatch_riders had no INSERT policy at all (unlike customers/
+-- vendors/addresses, which already have one) — needed for any direct
+-- client-side insert, though the signup trigger below bypasses RLS itself.
+CREATE POLICY "Users can insert own profile" ON users
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Riders can insert own profile" ON dispatch_riders
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Auto-create public.users + the role-specific profile row whenever a new
+-- auth.users row is created. Reads full_name/role from the signUp() call's
+-- options.data (stored as raw_user_meta_data). SECURITY DEFINER runs this
+-- with elevated privileges that bypass RLS, independent of whether email
+-- confirmation has happened yet — a client-side insert immediately after
+-- signUp() would otherwise fail whenever "Confirm email" is enabled, since
+-- there's no active session (auth.uid() is null) until it's confirmed.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  new_role user_role;
+BEGIN
+  new_role := COALESCE(NEW.raw_user_meta_data->>'role', 'customer')::user_role;
+
+  INSERT INTO public.users (id, email, full_name, role)
+  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name', new_role)
+  ON CONFLICT (id) DO NOTHING;
+
+  IF new_role = 'customer' THEN
+    INSERT INTO public.customers (user_id)
+    VALUES (NEW.id)
+    ON CONFLICT (user_id) DO NOTHING;
+  ELSIF new_role = 'vendor' THEN
+    INSERT INTO public.vendors (user_id, business_name, phone, email, address)
+    VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'New Vendor'), '', NEW.email, '')
+    ON CONFLICT (user_id) DO NOTHING;
+  ELSIF new_role = 'dispatcher' THEN
+    INSERT INTO public.dispatch_riders (user_id, phone, vehicle, plate_number)
+    VALUES (NEW.id, '', '', '')
+    ON CONFLICT (user_id) DO NOTHING;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
